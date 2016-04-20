@@ -1,6 +1,8 @@
 package com.example.kimpanio.mindmap;
 
 import android.app.ActionBar;
+import android.app.usage.UsageEvents;
+import android.bluetooth.BluetoothClass;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,6 +10,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
     EditText editText;
     Button addTextButton;
     LinearLayout linearLayout;
-
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,17 +43,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText().toString())){
-                    TextView textView = new TextView(getApplicationContext());
+                    textView = new TextView(getApplicationContext());
                     textView.setText(editText.getText());
                     setTextViewStyle(textView);
+                    textView.setOnTouchListener(new CustomTouchListener());
+
+                    editText.setText(emptyEditTextField());
 
                     linearLayout.addView(textView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                    editText.setText(emptyEditTextField(editText));
-
-                    Toast.makeText(view.getContext(), "Success!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(view.getContext(), "Success!", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    Toast.makeText(view.getContext(), "Fail!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(view.getContext(), "Fail!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -60,11 +64,10 @@ public class MainActivity extends AppCompatActivity {
         textView.setTextColor(Color.BLACK);
         textView.setTextSize(20);
         textView.setBackgroundColor(Color.CYAN);
-
     }
 
-    public String emptyEditTextField(EditText editText){
-        return "";
+    public String emptyEditTextField(){
+        return null;
     }
 
     @Override

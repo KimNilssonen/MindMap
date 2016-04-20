@@ -26,5 +26,11 @@
         android:layout_gravity="end"
         android:text="@string/addTextButton"/>
 
+    <TextView
+        android:id="@+id/coordsTextView"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_gravity="end"/>
+
 </LinearLayout>
 
