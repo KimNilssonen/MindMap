@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,30 +7,24 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:orientation="vertical"
-    android:id="@+id/mainLinearLayout"
+    android:id="@+id/root"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.kimpanio.mindmap.MainActivity"
     tools:showIn="@layout/activity_main">
 
     <EditText
         android:id="@+id/editTextField"
-        android:layout_width="fill_parent"
+        android:layout_width="256dp"
         android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="10dp"
         android:hint="@string/editTextHint" />
 
     <Button
         android:id="@+id/addTextButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_gravity="end"
+        android:layout_toEndOf="@id/editTextField"
         android:text="@string/addTextButton"/>
 
-    <TextView
-        android:id="@+id/coordsTextView"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="end"/>
-
-</LinearLayout>
-
+</RelativeLayout>

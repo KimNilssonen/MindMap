@@ -1,16 +1,14 @@
 package com.example.kimpanio.mindmap;
 
 import android.app.ActionBar;
-import android.app.usage.UsageEvents;
-import android.bluetooth.BluetoothClass;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
 
     EditText editText;
     Button addTextButton;
-    LinearLayout linearLayout;
+    ViewGroup rootLayout;
     TextView textView;
 
     @Override
@@ -36,13 +35,14 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         editText = (EditText) findViewById(R.id.editTextField);
-        linearLayout = (LinearLayout) findViewById(R.id.mainLinearLayout);
+        rootLayout = (ViewGroup) findViewById(R.id.root);
         addTextButton = (Button) findViewById(R.id.addTextButton);
 
         addTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText().toString())){
+
                     textView = new TextView(getApplicationContext());
                     textView.setText(editText.getText());
                     setTextViewStyle(textView);
@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
                     editText.setText(emptyEditTextField());
 
-                    linearLayout.addView(textView, new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                    rootLayout.addView(textView, setLayoutParameters());
                     Toast.makeText(view.getContext(), "Success!", Toast.LENGTH_SHORT).show();
                 }
                 else {
@@ -61,9 +61,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setTextViewStyle(TextView textView){
+        textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
         textView.setTextSize(20);
-        textView.setBackgroundColor(Color.CYAN);
+        textView.setGravity(0x11);
+        textView.setPadding(20,20,20,20);
+    }
+
+    public RelativeLayout.LayoutParams setLayoutParameters(){
+        RelativeLayout.LayoutParams layoutParam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                                                                    RelativeLayout.LayoutParams.WRAP_CONTENT);
+
+        return layoutParam;
     }
 
     public String emptyEditTextField(){
