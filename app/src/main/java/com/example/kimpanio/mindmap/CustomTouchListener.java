@@ -1,14 +1,8 @@
 package com.example.kimpanio.mindmap;
 
-import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
-
 
 public class CustomTouchListener extends MainActivity implements View.OnTouchListener {
 
@@ -18,6 +12,7 @@ public class CustomTouchListener extends MainActivity implements View.OnTouchLis
     public boolean onTouch(View view, MotionEvent motionEvent) {
         final int X = (int) motionEvent.getRawX();
         final int Y = (int) motionEvent.getRawY();
+
         switch (motionEvent.getAction()) {
             case MotionEvent.ACTION_DOWN: {
                 RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
@@ -35,7 +30,6 @@ public class CustomTouchListener extends MainActivity implements View.OnTouchLis
                 layoutParams.bottomMargin = -250;
                 view.setLayoutParams(layoutParams);
 
-
                 break;
             }
             case MotionEvent.ACTION_CANCEL:
@@ -43,9 +37,12 @@ public class CustomTouchListener extends MainActivity implements View.OnTouchLis
                 // Action you you want on finger up
                 break;
         }
+
         return true;
     }
 }
+
+
 
 
 /*

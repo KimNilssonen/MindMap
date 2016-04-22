@@ -1,11 +1,8 @@
 package com.example.kimpanio.mindmap;
 
-import android.app.ActionBar;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -15,8 +12,8 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +22,10 @@ public class MainActivity extends AppCompatActivity {
     EditText editText;
     Button addTextButton;
     ViewGroup rootLayout;
+    ViewGroup mapLayout;
     TextView textView;
+    RelativeLayout.LayoutParams layoutParam;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,14 +34,15 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        editText = (EditText) findViewById(R.id.editTextField);
         rootLayout = (ViewGroup) findViewById(R.id.root);
+        editText = (EditText) findViewById(R.id.editTextField);
         addTextButton = (Button) findViewById(R.id.addTextButton);
+        mapLayout = (ViewGroup) findViewById(R.id.mapLayout);
 
         addTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!TextUtils.isEmpty(editText.getText().toString())){
+                if (!TextUtils.isEmpty(editText.getText())) {
 
                     textView = new TextView(getApplicationContext());
                     textView.setText(editText.getText());
@@ -50,10 +51,9 @@ public class MainActivity extends AppCompatActivity {
 
                     editText.setText(emptyEditTextField());
 
-                    rootLayout.addView(textView, setLayoutParameters());
+                    mapLayout.addView(textView, setLayoutParameters());
                     Toast.makeText(view.getContext(), "Success!", Toast.LENGTH_SHORT).show();
-                }
-                else {
+                } else {
                     Toast.makeText(view.getContext(), "Fail!", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -65,13 +65,12 @@ public class MainActivity extends AppCompatActivity {
         textView.setTextColor(Color.BLACK);
         textView.setTextSize(20);
         textView.setGravity(0x11);
-        textView.setPadding(20,20,20,20);
+        textView.setPadding(20, 20, 20, 20);
     }
 
     public RelativeLayout.LayoutParams setLayoutParameters(){
-        RelativeLayout.LayoutParams layoutParam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                                                                                    RelativeLayout.LayoutParams.WRAP_CONTENT);
-
+        layoutParam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                                        RelativeLayout.LayoutParams.WRAP_CONTENT);
         return layoutParam;
     }
 

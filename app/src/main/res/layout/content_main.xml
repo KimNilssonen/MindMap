@@ -12,19 +12,34 @@
     tools:context="com.example.kimpanio.mindmap.MainActivity"
     tools:showIn="@layout/activity_main">
 
-    <EditText
-        android:id="@+id/editTextField"
-        android:layout_width="256dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="10dp"
-        android:hint="@string/editTextHint" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/addTextLayout">
 
-    <Button
-        android:id="@+id/addTextButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/editTextField"
-        android:text="@string/addTextButton"/>
+        <EditText
+            android:id="@+id/editTextField"
+            android:layout_width="256dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
+            android:hint="@string/editTextHint" />
+
+        <Button
+            android:id="@+id/addTextButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/editTextField"
+            android:text="@string/addTextButton"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/mapLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/addTextLayout">
+
+    </RelativeLayout>
 
 </RelativeLayout>
