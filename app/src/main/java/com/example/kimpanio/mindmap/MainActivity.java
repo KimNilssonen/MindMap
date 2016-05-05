@@ -1,6 +1,5 @@
 package com.example.kimpanio.mindmap;
 
-import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -13,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.Space;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +23,6 @@ public class MainActivity extends AppCompatActivity {
     ViewGroup mapLayout;
     TextView textView;
     RelativeLayout.LayoutParams layoutParam;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,12 +40,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
-
                     textView = new TextView(getApplicationContext());
                     textView.setText(editText.getText());
                     setTextViewStyle(textView);
-                    textView.setOnTouchListener(new CustomTouchListener());
-
+                    textView.setOnTouchListener(new MultiTouch());
                     editText.setText(emptyEditTextField());
 
                     mapLayout.addView(textView, setLayoutParameters());
@@ -58,14 +53,17 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        mapLayout.setBackgroundColor(Color.CYAN);
+        mapLayout.setOnTouchListener(new MultiTouch());
     }
 
     public void setTextViewStyle(TextView textView){
         textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
-        textView.setTextSize(20);
+        textView.setTextSize(40);
         textView.setGravity(0x11);
         textView.setPadding(20, 20, 20, 20);
+        textView.setTag("TextView");
     }
 
     public RelativeLayout.LayoutParams setLayoutParameters(){
