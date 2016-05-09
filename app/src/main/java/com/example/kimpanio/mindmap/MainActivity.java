@@ -2,9 +2,11 @@ package com.example.kimpanio.mindmap;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,14 +17,22 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.EventListener;
+
 public class MainActivity extends AppCompatActivity {
 
-    EditText editText;
-    Button addTextButton;
-    ViewGroup rootLayout;
-    ViewGroup mapLayout;
-    TextView textView;
-    RelativeLayout.LayoutParams layoutParam;
+   // private MultiTouch multiTouch;
+    private ZoomableViewGroup zoomableViewGroup;
+
+    private EditText editText;
+    private Button addTextButton;
+    private ViewGroup rootLayout;
+    private ViewGroup mapLayout;
+    private TextView textView;
+    private RelativeLayout.LayoutParams layoutParam;
+
+    private int mScreenWidth;
+    private int mScreenHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,22 +41,31 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        // Retrieve the device dimensions to adapt interface
+        mScreenWidth = getApplicationContext().getResources()
+                .getDisplayMetrics().widthPixels;
+        mScreenHeight = getApplicationContext().getResources()
+                .getDisplayMetrics().heightPixels;
+
+        zoomableViewGroup = new ZoomableViewGroup(this);
+        zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
+
+
         rootLayout = (ViewGroup) findViewById(R.id.root);
         editText = (EditText) findViewById(R.id.editTextField);
         addTextButton = (Button) findViewById(R.id.addTextButton);
         mapLayout = (ViewGroup) findViewById(R.id.mapLayout);
+
+        mapLayout.addView(zoomableViewGroup);
 
         addTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
                     textView = new TextView(getApplicationContext());
-                    textView.setText(editText.getText());
-                    setTextViewStyle(textView);
-                    textView.setOnTouchListener(new MultiTouch());
-                    editText.setText(emptyEditTextField());
+                    setTextViewProperties(textView);
 
-                    mapLayout.addView(textView, setLayoutParameters());
+                    zoomableViewGroup.addView(textView);
                     Toast.makeText(view.getContext(), "Success!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(view.getContext(), "Fail!", Toast.LENGTH_SHORT).show();
@@ -54,16 +73,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mapLayout.setBackgroundColor(Color.CYAN);
-        mapLayout.setOnTouchListener(new MultiTouch());
     }
 
-    public void setTextViewStyle(TextView textView){
+    public void setTextViewProperties(TextView textView){
         textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
-        textView.setTextSize(40);
+        textView.setTextSize(20);
         textView.setGravity(0x11);
         textView.setPadding(20, 20, 20, 20);
         textView.setTag("TextView");
+        textView.setText(editText.getText());
+        textView.setLayoutParams(setLayoutParameters());
+        textView.setOnTouchListener(new CustomTouchListener());
+        editText.setText(emptyEditTextField());
     }
 
     public RelativeLayout.LayoutParams setLayoutParameters(){

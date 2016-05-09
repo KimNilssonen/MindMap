@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp"
     android:orientation="vertical"
     android:id="@+id/root"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -15,7 +15,9 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:id="@+id/addTextLayout">
+        android:id="@+id/addTextLayout"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentTop="true">
 
         <EditText
             android:id="@+id/editTextField"
@@ -32,13 +34,14 @@
             android:layout_toEndOf="@id/editTextField"
             android:text="@string/addTextButton"/>
 
-    </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/mapLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/editTextField">
 
-    <RelativeLayout
-        android:id="@+id/mapLayout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/addTextLayout">
+        </RelativeLayout>
 
     </RelativeLayout>
 
