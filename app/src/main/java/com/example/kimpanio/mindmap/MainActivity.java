@@ -1,6 +1,7 @@
 package com.example.kimpanio.mindmap;
 
 import android.graphics.Color;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -17,17 +18,16 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.EventListener;
-
 public class MainActivity extends AppCompatActivity {
 
-   // private MultiTouch multiTouch;
     private ZoomableViewGroup zoomableViewGroup;
+    private CustomTouchListener customTouchListener;
 
     private EditText editText;
     private Button addTextButton;
     private ViewGroup rootLayout;
     private ViewGroup mapLayout;
+    private CustomTextView customTextView;
     private TextView textView;
     private RelativeLayout.LayoutParams layoutParam;
 
@@ -50,22 +50,23 @@ public class MainActivity extends AppCompatActivity {
         zoomableViewGroup = new ZoomableViewGroup(this);
         zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
 
-
         rootLayout = (ViewGroup) findViewById(R.id.root);
         editText = (EditText) findViewById(R.id.editTextField);
         addTextButton = (Button) findViewById(R.id.addTextButton);
-        mapLayout = (ViewGroup) findViewById(R.id.mapLayout);
-
-        mapLayout.addView(zoomableViewGroup);
+        mapLayout = (RelativeLayout) findViewById(R.id.mapLayout);
 
         addTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
-                    textView = new TextView(getApplicationContext());
+                    textView = new TextView(MainActivity.this);
                     setTextViewProperties(textView);
+                    textView.setOnTouchListener(zoomableViewGroup.mTouchListener);
 
                     zoomableViewGroup.addView(textView);
+
+                    //createTextView(50,50);
+                    editText.setText(emptyEditTextField());
                     Toast.makeText(view.getContext(), "Success!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(view.getContext(), "Fail!", Toast.LENGTH_SHORT).show();
@@ -73,25 +74,38 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mapLayout.setBackgroundColor(Color.CYAN);
+        mapLayout.addView(zoomableViewGroup);
     }
 
-    public void setTextViewProperties(TextView textView){
-        textView.setBackgroundResource(R.drawable.background);
-        textView.setTextColor(Color.BLACK);
-        textView.setTextSize(20);
-        textView.setGravity(0x11);
-        textView.setPadding(20, 20, 20, 20);
-        textView.setTag("TextView");
-        textView.setText(editText.getText());
-        textView.setLayoutParams(setLayoutParameters());
-        textView.setOnTouchListener(new CustomTouchListener());
-        editText.setText(emptyEditTextField());
+    public void setTextViewProperties(TextView mTextView){
+        mTextView.setBackgroundResource(R.drawable.background);
+        mTextView.setTextColor(Color.BLACK);
+        mTextView.setTextSize(20);
+        mTextView.setGravity(0x11);
+        mTextView.setPadding(20, 20, 20, 20);
+        mTextView.setTag("TextView");
+        mTextView.setText(editText.getText());
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                                                                                    RelativeLayout.LayoutParams.WRAP_CONTENT);
+        layoutParams.leftMargin = 10;
+        layoutParams.topMargin = 10;
+        layoutParams.bottomMargin = -10;
+        layoutParams.rightMargin = -10;
+        mTextView.setLayoutParams(layoutParams);
     }
 
-    public RelativeLayout.LayoutParams setLayoutParameters(){
-        layoutParam = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                                                        RelativeLayout.LayoutParams.WRAP_CONTENT);
-        return layoutParam;
+    // Creation of a textview element.
+    private void createTextView(int pPosX, int pPosY) {
+
+        customTextView = new CustomTextView(MainActivity.this);
+        customTextView.setTextViewProperties(editText.getText().toString());
+
+        Point lPoint = new Point();
+        lPoint.x = pPosX;
+        lPoint.y = pPosY;
+        customTextView.setPosition(lPoint);
+
+        zoomableViewGroup.addView(customTextView);
     }
 
     public String emptyEditTextField(){

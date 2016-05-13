@@ -1,10 +1,14 @@
 package com.example.kimpanio.mindmap;
 
+import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.view.*;
+import android.widget.RelativeLayout;
+
+import java.util.List;
 
 public class ZoomableViewGroup extends ViewGroup{
 
@@ -26,6 +30,9 @@ public class ZoomableViewGroup extends ViewGroup{
 
     private float mFocusX;
     private float mFocusY;
+
+    private int mXDelta;
+    private int mYDelta;
 
     private float[] mInvalidateWorkingArray = new float[6];
     private float[] mDispatchTouchEventWorkingArray = new float[2];
@@ -87,7 +94,7 @@ public class ZoomableViewGroup extends ViewGroup{
      * so because it offers me an easy way to change the invalidated area to my
      * likening.
      */
-    @Override
+
     public ViewParent invalidateChildInParent(int[] location, Rect dirty) {
 
         mInvalidateWorkingArray[0] = dirty.left;
@@ -117,8 +124,16 @@ public class ZoomableViewGroup extends ViewGroup{
         return a;
     }
 
+    //@Override
+    //public boolean onInterceptTouchEvent(MotionEvent motionEvent){
+    //    if(getChildCount() > 0){
+    //        return false;
+    //    }
+    //    return true;
+   // }
+
     @Override
-    public boolean onTouchEvent(MotionEvent motionEvent) {
+    public boolean onTouchEvent(MotionEvent motionEvent){
         mOnTouchEventWorkingArray[0] = motionEvent.getX();
         mOnTouchEventWorkingArray[1] = motionEvent.getY();
 
@@ -126,6 +141,8 @@ public class ZoomableViewGroup extends ViewGroup{
 
         motionEvent.setLocation(mOnTouchEventWorkingArray[0], mOnTouchEventWorkingArray[1]);
         mScaleDetector.onTouchEvent(motionEvent);
+
+        System.out.println("Hej jag är ZooooomVY!!");
 
         final int action = motionEvent.getAction();
         switch (action & MotionEvent.ACTION_MASK) {
@@ -143,6 +160,7 @@ public class ZoomableViewGroup extends ViewGroup{
             }
 
             case MotionEvent.ACTION_MOVE: {
+
                 // Find the index of the active pointer and fetch its position
                 final int pointerIndex = motionEvent.findPointerIndex(mActivePointerId);
                 final float x = motionEvent.getX(pointerIndex);
@@ -189,8 +207,40 @@ public class ZoomableViewGroup extends ViewGroup{
                 break;
             }
         }
+
         return true;
     }
+
+    public OnTouchListener mTouchListener = new  OnTouchListener() {
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+
+            view.bringToFront();
+            System.out.println("Hej jag är TEXTVYYYY!");
+
+            final int X = (int)motionEvent.getRawX();
+            final int Y = (int)motionEvent.getRawY();
+            switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
+                case MotionEvent.ACTION_DOWN:
+                    RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                    mXDelta = X - lParams.leftMargin;
+                    mYDelta = Y - lParams.topMargin;
+                    break;
+
+                case MotionEvent.ACTION_MOVE:
+                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
+                    layoutParams.leftMargin = X - mXDelta;
+                    layoutParams.topMargin = Y - mYDelta;
+                    layoutParams.rightMargin = -250;
+                    layoutParams.bottomMargin = -250;
+                    view.setLayoutParams(layoutParams);
+                    view.setTranslationX(layoutParams.leftMargin);
+                    view.setTranslationY(layoutParams.topMargin);
+                    break;
+            }
+            return true;
+        }
+    };
 
     private boolean isChildTextView(View view){
         if(view.getTag() == "TextView") {
