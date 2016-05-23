@@ -214,7 +214,6 @@ public class ZoomableViewGroup extends ViewGroup{
     public OnTouchListener mTouchListener = new  OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-
             view.bringToFront();
             System.out.println("Hej jag är TEXTVYYYY!");
 

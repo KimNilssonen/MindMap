@@ -1,5 +1,6 @@
 package com.example.kimpanio.mindmap;
 
+import android.app.Application;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
@@ -25,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText editText;
     private Button addTextButton;
+    private ViewGroup addTextLayout;
     private ViewGroup rootLayout;
     private ViewGroup mapLayout;
     private CustomTextView customTextView;
@@ -49,20 +52,28 @@ public class MainActivity extends AppCompatActivity {
 
         zoomableViewGroup = new ZoomableViewGroup(this);
         zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
+        zoomableViewGroup.setBackgroundColor(Color.parseColor("#32000000"));
 
         rootLayout = (ViewGroup) findViewById(R.id.root);
         editText = (EditText) findViewById(R.id.editTextField);
         addTextButton = (Button) findViewById(R.id.addTextButton);
+        addTextLayout = (RelativeLayout) findViewById(R.id.addTextLayout);
         mapLayout = (RelativeLayout) findViewById(R.id.mapLayout);
+
+
 
         addTextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
+
+                    RelativeLayout.LayoutParams layoutParams =  new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                            RelativeLayout.LayoutParams.WRAP_CONTENT);
+
                     textView = new TextView(MainActivity.this);
                     setTextViewProperties(textView);
                     textView.setOnTouchListener(zoomableViewGroup.mTouchListener);
-
+                    textView.setLayoutParams(layoutParams);
                     zoomableViewGroup.addView(textView);
 
                     //createTextView(50,50);
@@ -73,40 +84,34 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        mapLayout.setBackgroundColor(Color.CYAN);
+        mapLayout.setBackgroundColor(Color.TRANSPARENT);
         mapLayout.addView(zoomableViewGroup);
     }
 
-    public void setTextViewProperties(TextView mTextView){
-        mTextView.setBackgroundResource(R.drawable.background);
-        mTextView.setTextColor(Color.BLACK);
-        mTextView.setTextSize(20);
-        mTextView.setGravity(0x11);
-        mTextView.setPadding(20, 20, 20, 20);
-        mTextView.setTag("TextView");
-        mTextView.setText(editText.getText());
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                                                                                    RelativeLayout.LayoutParams.WRAP_CONTENT);
-        layoutParams.leftMargin = 10;
-        layoutParams.topMargin = 10;
-        layoutParams.bottomMargin = -10;
-        layoutParams.rightMargin = -10;
-        mTextView.setLayoutParams(layoutParams);
+    public void setTextViewProperties(TextView textView){
+        textView.setBackgroundResource(R.drawable.background);
+        textView.setTextColor(Color.BLACK);
+        textView.setTextSize(20);
+        textView.setGravity(Gravity.CENTER);
+        textView.setPadding(20, 20, 20, 20);
+        textView.setTag("TextView");
+        textView.setText(editText.getText());
+
     }
 
-    // Creation of a textview element.
-    private void createTextView(int pPosX, int pPosY) {
-
-        customTextView = new CustomTextView(MainActivity.this);
-        customTextView.setTextViewProperties(editText.getText().toString());
-
-        Point lPoint = new Point();
-        lPoint.x = pPosX;
-        lPoint.y = pPosY;
-        customTextView.setPosition(lPoint);
-
-        zoomableViewGroup.addView(customTextView);
-    }
+//    // Creation of a textview element.
+//    private TextView createTextView(int pPosX, int pPosY) {
+//
+//        customTextView = new CustomTextView(MainActivity.this);
+//        setTextViewProperties(customTextView);
+//
+//        Point lPoint = new Point();
+//        lPoint.x = pPosX;
+//        lPoint.y = pPosY;
+//        customTextView.setPosition(lPoint);
+//
+//        return customTextView;
+//    }
 
     public String emptyEditTextField(){
         return null;
@@ -129,6 +134,10 @@ public class MainActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        }
+
+        if (id == R.id.save_map) {
+            //TODO: SaveToDevice.
         }
 
         return super.onOptionsItemSelected(item);

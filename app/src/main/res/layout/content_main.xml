@@ -10,14 +10,15 @@
     android:id="@+id/root"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.kimpanio.mindmap.MainActivity"
-    tools:showIn="@layout/activity_main">
+    tools:showIn="@layout/activity_main"
+    android:background="#f3ffe7">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:id="@+id/addTextLayout"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentTop="true">
+        android:layout_alignParentTop="true"
+        android:background="@color/colorBackgroundDark">
 
         <EditText
             android:id="@+id/editTextField"
@@ -25,23 +26,28 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="10dp"
-            android:hint="@string/editTextHint" />
+            android:hint="@string/editTextHint"
+            android:textColor="#000000" />
 
         <Button
             android:id="@+id/addTextButton"
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/editTextField"
-            android:text="@string/addTextButton"/>
+            android:text="@string/addTextButton"
+            android:background="#99faf8"
+            android:backgroundTint="#7ff7f9"
+            android:elegantTextHeight="false" />
 
-        <RelativeLayout
-            android:id="@+id/mapLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:layout_below="@+id/editTextField">
+    </RelativeLayout>
 
-        </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/mapLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/addTextLayout"
+        android:background="@color/colorBackgroundLight">
 
     </RelativeLayout>
 

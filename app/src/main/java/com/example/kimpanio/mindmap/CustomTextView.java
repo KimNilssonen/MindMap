@@ -24,7 +24,6 @@ public class CustomTextView extends TextView
         super(context);
         mTextView = new TextView(context);
         mRegion = new Region();
-        this.setOnTouchListener(mTouchListener);
     }
 
     public final TextView getTextView() { return mTextView; }
@@ -62,53 +61,4 @@ public class CustomTextView extends TextView
 
     public final Point getSize() { return mSize; }
 
-    public void setTextViewProperties(String text){
-        mTextView.setBackgroundResource(R.drawable.background);
-        mTextView.setTextColor(Color.BLACK);
-        mTextView.setTextSize(20);
-        mTextView.setGravity(0x11);
-        mTextView.setPadding(20, 20, 20, 20);
-        mTextView.setTag("TextView");
-        mTextView.setText(text);
-    }
-
-    public OnTouchListener mTouchListener = new  OnTouchListener(){
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-
-            v.bringToFront();
-            // Is the event inside of this view?
-            if(!mRegion.contains((int)event.getX(), (int)event.getY()))
-            {
-                return false;
-            }
-
-            if(event.getAction() == MotionEvent.ACTION_DOWN)
-            {
-                mStartPosition.x = (int)event.getX();
-                mStartPosition.y = (int)event.getY();
-                bringToFront();
-                return true;
-            }
-            else if(event.getAction() == MotionEvent.ACTION_MOVE)
-            {
-                int x = 0, y = 0;
-
-                x = (int)event.getX() - mStartPosition.x;
-                y = (int)event.getY() - mStartPosition.y;
-
-                mRegion.translate(x, y);
-                mStartPosition.x = (int)event.getX();
-                mStartPosition.y = (int)event.getY();
-
-                invalidate();
-
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-    };
 }
