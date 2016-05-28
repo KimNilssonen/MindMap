@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.example.kimpanio.mindmap.SaveMapActivity"
+    tools:showIn="@layout/activity_save_map">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:id="@+id/saveFileLayout"
+        android:layout_alignParentTop="true"
+        android:background="@color/colorBackgroundDark">
+
+        <EditText
+            android:id="@+id/saveEditText"
+            android:layout_width="256dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="10dp"
+            android:hint="@string/saveEditTextHint"
+            android:textColor="#000000" />
+
+        <Button
+            android:id="@+id/saveFileButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/saveEditText"
+            android:text="@string/saveFileButton"
+            android:background="#99faf8"
+            android:backgroundTint="#7ff7f9"
+            android:elegantTextHeight="false" />
+
+    </RelativeLayout>
+
+</RelativeLayout>
