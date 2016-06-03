@@ -3,6 +3,7 @@ package com.example.kimpanio.mindmap;
 import android.app.Application;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -11,7 +12,9 @@ import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.ContextMenu;
 import android.view.Gravity;
+import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
@@ -30,7 +33,6 @@ import java.io.File;
 public class MainActivity extends AppCompatActivity {
 
     private ZoomableViewGroup zoomableViewGroup;
-    private CustomTouchListener customTouchListener;
 
     private EditText editText;
     private Button addTextButton;
@@ -40,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
     private CustomTextView customTextView;
     private TextView textView;
     private RelativeLayout.LayoutParams layoutParam;
-    private Bundle mSavedInstanceState;
 
     private int mScreenWidth;
     private int mScreenHeight;
@@ -52,7 +53,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        mSavedInstanceState = savedInstanceState;
         // Retrieve the device dimensions to adapt interface
         mScreenWidth = getApplicationContext().getResources()
                 .getDisplayMetrics().widthPixels;
@@ -94,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
         mapLayout.addView(zoomableViewGroup);
     }
 
+
+
     public void setTextViewProperties(TextView textView){
         textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
@@ -123,9 +125,17 @@ public class MainActivity extends AppCompatActivity {
     public void saveMap(View view) {
         Intent intent = new Intent(this, SaveMapActivity.class);
         File xmlFile = new File(Environment.getExternalStorageDirectory().getPath() +  "/content_main.xml");
-
         intent.putExtra("XML_INTENT", xmlFile);
         startActivity(intent);
+    }
+
+    public void openMap(View view) {
+        Intent intent = new Intent(this, OpenMapActivity.class);
+        startActivity(intent);
+    }
+
+    public void clearBoard(ViewGroup view) {
+        view.removeAllViewsInLayout();
     }
 
     public String emptyEditTextField(){
@@ -151,8 +161,16 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if(id == R.id.clear_board) {
+            clearBoard(zoomableViewGroup);
+        }
+
         if (id == R.id.save_map) {
             saveMap(mapLayout);
+        }
+
+        if(id == R.id.open_map) {
+            openMap(mapLayout);
         }
 
         return super.onOptionsItemSelected(item);

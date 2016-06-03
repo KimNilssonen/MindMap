@@ -3,7 +3,9 @@ package com.example.kimpanio.mindmap;
 import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.*;
 import android.widget.RelativeLayout;
@@ -38,6 +40,10 @@ public class ZoomableViewGroup extends ViewGroup{
     private float[] mDispatchTouchEventWorkingArray = new float[2];
     private float[] mOnTouchEventWorkingArray = new float[2];
 
+    // Tried to use these for drawing line.
+    private View firstPressedView;
+    private View secondPressedView;
+    private DrawView drawView;
 
     public ZoomableViewGroup(Context context) {
         super(context);
@@ -214,6 +220,8 @@ public class ZoomableViewGroup extends ViewGroup{
     public OnTouchListener mTouchListener = new  OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
+
+
             view.bringToFront();
             System.out.println("Hej jag är TEXTVYYYY!");
 
@@ -224,6 +232,7 @@ public class ZoomableViewGroup extends ViewGroup{
                     RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     mXDelta = X - lParams.leftMargin;
                     mYDelta = Y - lParams.topMargin;
+
                     break;
 
                 case MotionEvent.ACTION_MOVE:
@@ -236,7 +245,8 @@ public class ZoomableViewGroup extends ViewGroup{
                     view.setTranslationX(layoutParams.leftMargin);
                     view.setTranslationY(layoutParams.topMargin);
                     break;
-            }
+
+                }
             return true;
         }
     };

@@ -10,14 +10,14 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="100dp"
         android:id="@+id/saveFileLayout"
         android:layout_alignParentTop="true"
         android:background="@color/colorBackgroundDark">
 
         <EditText
             android:id="@+id/saveEditText"
-            android:layout_width="256dp"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="10dp"
@@ -28,7 +28,7 @@
             android:id="@+id/saveFileButton"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/saveEditText"
+            android:layout_below="@id/saveEditText"
             android:text="@string/saveFileButton"
             android:background="#99faf8"
             android:backgroundTint="#7ff7f9"

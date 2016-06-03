@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.Settings;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import org.w3c.dom.Document;
 import org.xmlpull.v1.XmlSerializer;
@@ -70,50 +72,31 @@ public class SaveMapActivity extends AppCompatActivity {
 
         serializer = Xml.newSerializer();
         final Intent previousIntent = getIntent();
-        final Serializable previousXmlIntent = previousIntent.getSerializableExtra("XML_INTENT");
+        final Byte xmlContent = previousIntent.getExtras().getByte("XML_INTENT");
+        //final Serializable previousXmlIntent = previousIntent.getSerializableExtra("XML_INTENT");
 
         saveButton = (Button) findViewById(R.id.saveFileButton);
         editText = (EditText) findViewById(R.id.saveEditText);
 
+        System.out.println(xmlContent);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(isExternalStorageWritable()) {
-                    File newxmlfile = new File("/data/" + editText.getText().toString() + ".xml");
-                    try{
-                        newxmlfile.createNewFile();
-                    }catch(IOException e)
-                    {
-                        Log.e("IOException", "Exception in create new File(");
-                    }
-                    FileOutputStream fileos = null;
-                    try{
-                        fileos = new FileOutputStream(newxmlfile);
+                String fileName = editText.getText().toString();
+                //File file = new File(getApplicationContext().getFilesDir(), fileName);
 
-                    }catch(FileNotFoundException e)
-                    {
-                        Log.e("FileNotFoundException", e.toString());
-                    }
-                    try {
-                        serializer.setOutput(fileos, "UTF-8");
-                        serializer.startDocument(null, Boolean.valueOf(true));
-                        serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
-                        serializer.startTag(null, "root");
-                        serializer.startTag(null, "Child1");
-                        serializer.endTag(null, "Child1");
-                        serializer.attribute(null, "attribute", "value");
-                        serializer.endTag(null,"root");
-                        serializer.endDocument();
-                        serializer.flush();
-                        fileos.close();
-                    }catch(Exception e)
-                    {
-                        Log.e("Exception","Exception occured in wroting");
-                    }
+                try {
+                    fileOutputStream = openFileOutput(fileName, Context.MODE_APPEND);
+                    fileOutputStream.write(xmlContent);
+                    fileOutputStream.close();
+                    editText.setText("");
+                    Toast.makeText(getApplicationContext(), "File saved!", Toast.LENGTH_LONG).show();
                 }
-                else {
-                    Snackbar.make(view, "No writable external storage!", Snackbar.LENGTH_LONG)
-                            .setAction("Action", null).show();
+                catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+                catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -127,6 +110,16 @@ public class SaveMapActivity extends AppCompatActivity {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
             return true;
+        }
+        return false;
+    }
+    public boolean isSavePermitted(){
+        if(Build.VERSION.SDK_INT >= 23){
+            if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    == PackageManager.PERMISSION_GRANTED) {
+                Log.v("PERMISSION","Permission is granted");
+                return true;
+            }
         }
         return false;
     }
