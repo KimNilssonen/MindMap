@@ -12,14 +12,34 @@ import android.view.View;
 public class DrawView extends View {
     Paint paint = new Paint();
 
+    // Variables for coords for drawing line.
+    private float startX;
+    private float startY;
+    private float stopX;
+    private float stopY;
+
     public DrawView(Context context) {
         super(context);
         paint.setColor(Color.BLACK);
+        paint.setStrokeWidth(5);
     }
 
     @Override
     public void onDraw(Canvas canvas) {
-        canvas.drawLine(0, 50, 350, 50, paint);
+        canvas.save();
+        canvas.drawLine(startX, startY, stopX, stopY, paint);
+        super.onDraw(canvas);
+        canvas.restore();
+    }
+
+    public void setStartCoords(float x, float y) {
+        startX = x;
+        startY = y;
+    }
+
+    public void setStopCoords(float x, float y) {
+        stopX = x;
+        stopY = y;
     }
 
 }

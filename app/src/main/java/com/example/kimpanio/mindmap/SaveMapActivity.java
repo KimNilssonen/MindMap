@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -14,6 +15,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.Xml;
 import android.view.View;
@@ -23,6 +25,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
@@ -31,25 +35,29 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.Writer;
 
 import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 public class SaveMapActivity extends AppCompatActivity {
 
     private Button saveButton;
     private EditText editText;
-    private XmlSerializer serializer;
+    private String fileName;
     private FileOutputStream fileOutputStream;
     private FileInputStream fileInputStream;
-
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-    private static String[] PERMISSIONS_STORAGE = {
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
 
 
     @Override
@@ -59,51 +67,62 @@ public class SaveMapActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        /*
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        */
+        //TODO: xmlContent get a value of null. Fix this!
+        final Serializable xmlContent = getIntent().getExtras().getSerializable("XML_INTENT");
 
-        serializer = Xml.newSerializer();
-        final Intent previousIntent = getIntent();
-        final Byte xmlContent = previousIntent.getExtras().getByte("XML_INTENT");
-        //final Serializable previousXmlIntent = previousIntent.getSerializableExtra("XML_INTENT");
-
+        System.out.println(xmlContent);
         saveButton = (Button) findViewById(R.id.saveFileButton);
         editText = (EditText) findViewById(R.id.saveEditText);
 
-        System.out.println(xmlContent);
+        //System.out.println(xmlContent);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String fileName = editText.getText().toString();
+                fileName = editText.getText().toString();
+                XmlSerializer serializer = Xml.newSerializer();
                 //File file = new File(getApplicationContext().getFilesDir(), fileName);
 
-                try {
-                    fileOutputStream = openFileOutput(fileName, Context.MODE_APPEND);
-                    fileOutputStream.write(xmlContent);
-                    fileOutputStream.close();
-                    editText.setText("");
-                    Toast.makeText(getApplicationContext(), "File saved!", Toast.LENGTH_LONG).show();
+                if (!TextUtils.isEmpty(fileName)) {
+                    try {
+                        fileOutputStream = openFileOutput(fileName, Context.MODE_PRIVATE);
+                        serializer.setOutput(fileOutputStream, "UTF-8");
+                        serializer.startDocument(null, Boolean.valueOf(true));
+                        serializer.setFeature("http://xmlpull.org/v1/doc/features.html#indent-output", true);
+
+                        serializer.startTag(null, "RelativeLayout");
+
+                        for(int j = 0 ; j < 3 ; j++)
+                        {
+
+                            serializer.startTag(null, "TextView");
+
+                            serializer.text(xmlContent.toString());
+
+                            serializer.endTag(null, "TextView");
+                        }
+                        serializer.endDocument();
+
+                        serializer.flush();
+
+                        fileOutputStream.close();
+
+                        editText.setText("");
+
+                        Toast.makeText(getApplicationContext(), "File saved!", Toast.LENGTH_LONG).show();
+
+                    }catch(FileNotFoundException e){
+                        e.printStackTrace();
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
                 }
-                catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                catch (IOException e) {
-                    e.printStackTrace();
+                else {
+                    Toast.makeText(getApplicationContext(), "You must establish a file name!", Toast.LENGTH_LONG).show();
                 }
             }
         });
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-
     }
 
     public boolean isExternalStorageWritable() {

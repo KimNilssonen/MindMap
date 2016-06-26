@@ -1,21 +1,20 @@
 package com.example.kimpanio.mindmap;
 
-import android.bluetooth.BluetoothClass;
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.*;
 import android.widget.RelativeLayout;
 
-import java.util.List;
 
 public class ZoomableViewGroup extends ViewGroup{
 
     private static final int INVALID_POINTER_ID = 1;
     private int mActivePointerId = INVALID_POINTER_ID;
+    private boolean drawLineActivated = false;
+    private int touchCounter;
 
     private float mScaleFactor = 1;
     private ScaleGestureDetector mScaleDetector;
@@ -50,6 +49,8 @@ public class ZoomableViewGroup extends ViewGroup{
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         mTranslateMatrix.setTranslate(0, 0);
         mScaleMatrix.setScale(1, 1);
+        drawView = new DrawView(context);
+        touchCounter = 0;
     }
 
     @Override
@@ -81,8 +82,12 @@ public class ZoomableViewGroup extends ViewGroup{
         canvas.save();
         canvas.translate(mPosX, mPosY);
         canvas.scale(mScaleFactor, mScaleFactor, mFocusX, mFocusY);
+        if(drawLineActivated) {
+            drawView.draw(canvas);
+        }
         super.dispatchDraw(canvas);
         canvas.restore();
+
     }
 
     @Override
@@ -100,7 +105,7 @@ public class ZoomableViewGroup extends ViewGroup{
      * so because it offers me an easy way to change the invalidated area to my
      * likening.
      */
-
+    @Override
     public ViewParent invalidateChildInParent(int[] location, Rect dirty) {
 
         mInvalidateWorkingArray[0] = dirty.left;
@@ -130,14 +135,6 @@ public class ZoomableViewGroup extends ViewGroup{
         return a;
     }
 
-    //@Override
-    //public boolean onInterceptTouchEvent(MotionEvent motionEvent){
-    //    if(getChildCount() > 0){
-    //        return false;
-    //    }
-    //    return true;
-   // }
-
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent){
         mOnTouchEventWorkingArray[0] = motionEvent.getX();
@@ -149,8 +146,8 @@ public class ZoomableViewGroup extends ViewGroup{
         mScaleDetector.onTouchEvent(motionEvent);
 
         System.out.println("Hej jag är ZooooomVY!!");
-
         final int action = motionEvent.getAction();
+
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN: {
 
@@ -217,21 +214,44 @@ public class ZoomableViewGroup extends ViewGroup{
         return true;
     }
 
+    // Used for the textviews.
     public OnTouchListener mTouchListener = new  OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent motionEvent) {
-
-
             view.bringToFront();
-            System.out.println("Hej jag är TEXTVYYYY!");
 
             final int X = (int)motionEvent.getRawX();
             final int Y = (int)motionEvent.getRawY();
+
             switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
                     RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     mXDelta = X - lParams.leftMargin;
                     mYDelta = Y - lParams.topMargin;
+
+                    //TODO: Make line not dissappear and should be able to have more than one line.
+                    if(drawLineActivated) {
+                        touchCounter = 0;
+                        drawLineActivated = false;
+                    }
+
+                    touchCounter++;
+                    if (touchCounter == 1) {
+                        System.out.println("Inne i ==1, ");
+                        drawView.setStartCoords(view.getX() + view.getWidth() / 2, view.getY() + view.getHeight() / 2);
+                        //drawLineActivated = false;
+                    }
+                    else if (touchCounter == 2) {
+                        drawView.setStopCoords(view.getX() + view.getWidth() / 2, view.getY() + view.getHeight() / 2);
+                        drawLineActivated = true;
+                        System.out.println("INNE i ==2, ");
+                    }
+
+                    System.out.println(touchCounter+" --- id:"+view.getId());
+
+
+                    // Save the ID of this pointer
+                    mActivePointerId = motionEvent.getPointerId(0);
 
                     break;
 
@@ -239,14 +259,30 @@ public class ZoomableViewGroup extends ViewGroup{
                     RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     layoutParams.leftMargin = X - mXDelta;
                     layoutParams.topMargin = Y - mYDelta;
-                    layoutParams.rightMargin = -250;
-                    layoutParams.bottomMargin = -250;
-                    view.setLayoutParams(layoutParams);
                     view.setTranslationX(layoutParams.leftMargin);
                     view.setTranslationY(layoutParams.topMargin);
+                    view.setLayoutParams(layoutParams);
+                    invalidate();
                     break;
 
-                }
+                case MotionEvent.ACTION_UP:
+                    mActivePointerId = INVALID_POINTER_ID;
+                    break;
+
+                case MotionEvent.ACTION_POINTER_UP:
+                    // Extract the index of the pointer that left the touch sensor
+                    final int pointerIndex = (motionEvent.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
+                    final int pointerId = motionEvent.getPointerId(pointerIndex);
+                    if (pointerId == mActivePointerId) {
+                        // This was our active pointer going up. Choose a new
+                        // active pointer and adjust accordingly.
+                        final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
+                        mLastTouchX = motionEvent.getX(newPointerIndex);
+                        mLastTouchY = motionEvent.getY(newPointerIndex);
+                        break;
+                    }
+            }
+            System.out.println(touchCounter+" -> touchcounter");
             return true;
         }
     };

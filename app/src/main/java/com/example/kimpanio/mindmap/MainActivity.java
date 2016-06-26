@@ -1,21 +1,15 @@
 package com.example.kimpanio.mindmap;
 
-import android.app.Application;
-import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.ContextMenu;
+import android.util.Xml;
 import android.view.Gravity;
-import android.view.MenuInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,9 +20,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.xml.sax.XMLReader;
+import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
+import java.io.Serializable;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -39,8 +35,10 @@ public class MainActivity extends AppCompatActivity {
     private ViewGroup addTextLayout;
     private ViewGroup rootLayout;
     private ViewGroup mapLayout;
-    private CustomTextView customTextView;
+    //private CustomTextView customTextView;
     private TextView textView;
+    private int textViewId = 0;
+
     private RelativeLayout.LayoutParams layoutParam;
 
     private int mScreenWidth;
@@ -62,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
         zoomableViewGroup = new ZoomableViewGroup(this);
         zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
 
-
         rootLayout = (ViewGroup) findViewById(R.id.root);
         editText = (EditText) findViewById(R.id.editTextField);
         addTextButton = (Button) findViewById(R.id.addTextButton);
@@ -73,12 +70,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
-
                     RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                             RelativeLayout.LayoutParams.WRAP_CONTENT);
-
                     textView = new TextView(MainActivity.this);
-                    setTextViewProperties(textView);
+                    setTextViewProperties(textView, ++textViewId);
                     textView.setOnTouchListener(zoomableViewGroup.mTouchListener);
                     textView.setLayoutParams(layoutParams);
                     zoomableViewGroup.addView(textView);
@@ -94,15 +89,14 @@ public class MainActivity extends AppCompatActivity {
         mapLayout.addView(zoomableViewGroup);
     }
 
-
-
-    public void setTextViewProperties(TextView textView){
+    public void setTextViewProperties(TextView textView, int id){
         textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
         textView.setTextSize(20);
         textView.setGravity(Gravity.CENTER);
         textView.setPadding(20, 20, 20, 20);
         textView.setTag("TextView");
+        textView.setId(id);
         textView.setText(editText.getText());
 
     }
@@ -124,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void saveMap(View view) {
         Intent intent = new Intent(this, SaveMapActivity.class);
-        File xmlFile = new File(Environment.getExternalStorageDirectory().getPath() +  "/content_main.xml");
-        intent.putExtra("XML_INTENT", xmlFile);
+        Serializable xmlContent = new File(getApplicationContext().getFilesDir(), "content_main.xml");
+        intent.putExtra("XML_CONTENT", xmlContent);
         startActivity(intent);
     }
 
