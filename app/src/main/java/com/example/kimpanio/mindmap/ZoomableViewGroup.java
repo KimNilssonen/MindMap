@@ -2,11 +2,15 @@ package com.example.kimpanio.mindmap;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.view.*;
 import android.widget.RelativeLayout;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class ZoomableViewGroup extends ViewGroup{
@@ -42,14 +46,21 @@ public class ZoomableViewGroup extends ViewGroup{
     // Tried to use these for drawing line.
     private View firstPressedView;
     private View secondPressedView;
-    private DrawView drawView;
+    private float startX;
+    private float startY;
+    private float stopX;
+    private float stopY;
+    private List<DrawView> drawViewList;
+    //private Paint paint = new Paint();
 
     public ZoomableViewGroup(Context context) {
         super(context);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         mTranslateMatrix.setTranslate(0, 0);
         mScaleMatrix.setScale(1, 1);
-        drawView = new DrawView(context);
+        //paint.setStrokeWidth(5);
+        //paint.setColor(Color.BLACK);
+        drawViewList = new ArrayList<>();
         touchCounter = 0;
     }
 
@@ -82,7 +93,9 @@ public class ZoomableViewGroup extends ViewGroup{
         canvas.save();
         canvas.translate(mPosX, mPosY);
         canvas.scale(mScaleFactor, mScaleFactor, mFocusX, mFocusY);
-        if(drawLineActivated) {
+//        canvas.drawLine(startX, startY, stopX, stopY, paint);
+        for (int i = 0; i < drawViewList.size(); i++){
+            DrawView drawView = drawViewList.get(i);
             drawView.draw(canvas);
         }
         super.dispatchDraw(canvas);
@@ -211,6 +224,8 @@ public class ZoomableViewGroup extends ViewGroup{
             }
         }
 
+        System.out.println(touchCounter+" -> touchcounter");
+        System.out.println(drawViewList.size());
         return true;
     }
 
@@ -228,31 +243,16 @@ public class ZoomableViewGroup extends ViewGroup{
                     RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     mXDelta = X - lParams.leftMargin;
                     mYDelta = Y - lParams.topMargin;
-
-                    //TODO: Make line not dissappear and should be able to have more than one line.
-                    if(drawLineActivated) {
-                        touchCounter = 0;
-                        drawLineActivated = false;
-                    }
-
                     touchCounter++;
-                    if (touchCounter == 1) {
-                        System.out.println("Inne i ==1, ");
-                        drawView.setStartCoords(view.getX() + view.getWidth() / 2, view.getY() + view.getHeight() / 2);
-                        //drawLineActivated = false;
+                    if(touchCounter == 1) {
+                        firstPressedView = view;
                     }
-                    else if (touchCounter == 2) {
-                        drawView.setStopCoords(view.getX() + view.getWidth() / 2, view.getY() + view.getHeight() / 2);
-                        drawLineActivated = true;
-                        System.out.println("INNE i ==2, ");
+                    else if(touchCounter == 2) {
+                        secondPressedView = view;
                     }
-
                     System.out.println(touchCounter+" --- id:"+view.getId());
-
-
                     // Save the ID of this pointer
                     mActivePointerId = motionEvent.getPointerId(0);
-
                     break;
 
                 case MotionEvent.ACTION_MOVE:
@@ -262,11 +262,37 @@ public class ZoomableViewGroup extends ViewGroup{
                     view.setTranslationX(layoutParams.leftMargin);
                     view.setTranslationY(layoutParams.topMargin);
                     view.setLayoutParams(layoutParams);
-                    invalidate();
                     break;
 
                 case MotionEvent.ACTION_UP:
                     mActivePointerId = INVALID_POINTER_ID;
+                    if(firstPressedView != null && secondPressedView != null) {
+                        if(firstPressedView.getId() == secondPressedView.getId()) {
+                            if(touchCounter != 0) {
+                                touchCounter--;
+                            }
+                        }
+                    }
+
+                    //TODO: Fix counter problem. THe app draws a line directly when moving a new textview. FIX!
+
+                    if (touchCounter == 1) {
+                        startX = view.getX() + view.getWidth() / 2;
+                        startY = view.getY() + view.getHeight() / 2;
+                    }
+                    else if (touchCounter == 2) {
+                        stopX = view.getX() + view.getWidth() / 2;
+                        stopY = view.getY() + view.getHeight() / 2;
+
+                        DrawView drawView = new DrawView(getContext());
+                        drawView.setStartCoords(startX, startY);
+                        drawView.setStopCoords(stopX, stopY);
+                        drawViewList.add(drawView);
+                        touchCounter = 0;
+                    }
+                    else if (touchCounter >= 3) {
+
+                    }
                     break;
 
                 case MotionEvent.ACTION_POINTER_UP:
@@ -282,20 +308,11 @@ public class ZoomableViewGroup extends ViewGroup{
                         break;
                     }
             }
-            System.out.println(touchCounter+" -> touchcounter");
             return true;
         }
     };
 
-    private boolean isChildTextView(View view){
-        if(view.getTag() == "TextView") {
-            return true;
-        }
-        return false;
-    }
-
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
             mScaleFactor *= detector.getScaleFactor();
