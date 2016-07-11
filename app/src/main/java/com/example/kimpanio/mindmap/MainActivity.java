@@ -1,8 +1,10 @@
 package com.example.kimpanio.mindmap;
 
+import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
 
     private int mScreenWidth;
     private int mScreenHeight;
+
+    public boolean drawLine = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,21 +105,6 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    //OLD CODE, tried with another method here.
-//    // Creation of a textview element.
-//    private TextView createTextView(int pPosX, int pPosY) {
-//
-//        customTextView = new CustomTextView(MainActivity.this);
-//        setTextViewProperties(customTextView);
-//
-//        Point lPoint = new Point();
-//        lPoint.x = pPosX;
-//        lPoint.y = pPosY;
-//        customTextView.setPosition(lPoint);
-//
-//        return customTextView;
-//    }
-
     public void saveMap(View view) {
         Intent intent = new Intent(this, SaveMapActivity.class);
         Serializable xmlContent = new File(getApplicationContext().getFilesDir(), "content_main.xml");
@@ -128,8 +117,21 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void drawLines(ZoomableViewGroup view, MenuItem item) {
+        if(!view.drawLineActivated) {
+            item.setIcon(getResources().getDrawable(R.drawable.line_activated));
+            view.drawLineActivated = true;
+            Toast.makeText(view.getContext(), "Drawing line activated!", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            item.setIcon(getResources().getDrawable(R.drawable.line));
+            view.drawLineActivated = false;
+            Toast.makeText(view.getContext(), "Drawing line de-activated!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void clearBoard(ViewGroup view) {
-        view.removeAllViewsInLayout();
+        view.removeAllViews();
     }
 
     public String emptyEditTextField(){
@@ -165,6 +167,10 @@ public class MainActivity extends AppCompatActivity {
 
         if(id == R.id.open_map) {
             openMap(mapLayout);
+        }
+
+        if(id == R.id.draw_line) {
+            drawLines(zoomableViewGroup, item);
         }
 
         return super.onOptionsItemSelected(item);

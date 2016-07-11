@@ -18,14 +18,21 @@
         android:id="@+id/open_map"
         android:title="@string/open_map"
         android:icon="@drawable/open"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         />
 
     <item
         android:id="@+id/save_map"
         android:title="@string/save_map"
         android:icon="@drawable/floppy_icon"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
+        />
+
+    <item
+        android:id="@+id/draw_line"
+        android:title="@string/draw_line"
+        android:icon="@drawable/line"
+        app:showAsAction="always"
         />
 
 </menu>

@@ -17,7 +17,7 @@ public class ZoomableViewGroup extends ViewGroup{
 
     private static final int INVALID_POINTER_ID = 1;
     private int mActivePointerId = INVALID_POINTER_ID;
-    private boolean drawLineActivated = false;
+    public boolean drawLineActivated = false;
     private int touchCounter;
 
     private float mScaleFactor = 1;
@@ -51,16 +51,13 @@ public class ZoomableViewGroup extends ViewGroup{
     private float stopX;
     private float stopY;
     private List<DrawView> drawViewList;
-    //private Paint paint = new Paint();
 
     public ZoomableViewGroup(Context context) {
         super(context);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         mTranslateMatrix.setTranslate(0, 0);
         mScaleMatrix.setScale(1, 1);
-        //paint.setStrokeWidth(5);
-        //paint.setColor(Color.BLACK);
-        drawViewList = new ArrayList<>();
+        drawViewList = new ArrayList<>(); // Is not in use atm. Used another way without this list.
         touchCounter = 0;
     }
 
@@ -93,11 +90,10 @@ public class ZoomableViewGroup extends ViewGroup{
         canvas.save();
         canvas.translate(mPosX, mPosY);
         canvas.scale(mScaleFactor, mScaleFactor, mFocusX, mFocusY);
-//        canvas.drawLine(startX, startY, stopX, stopY, paint);
-        for (int i = 0; i < drawViewList.size(); i++){
-            DrawView drawView = drawViewList.get(i);
-            drawView.draw(canvas);
-        }
+        //for (int i = 0; i < drawViewList.size(); i++){
+        //    DrawView drawView = drawViewList.get(i);
+        //    drawView.draw(canvas);
+        //}
         super.dispatchDraw(canvas);
         canvas.restore();
 
@@ -240,10 +236,15 @@ public class ZoomableViewGroup extends ViewGroup{
 
             switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
                 case MotionEvent.ACTION_DOWN:
+                    if(drawLineActivated) {
+                        touchCounter++;
+                    }
+                    else {
+                        touchCounter = 0;
+                    }
                     RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
                     mXDelta = X - lParams.leftMargin;
                     mYDelta = Y - lParams.topMargin;
-                    touchCounter++;
                     if(touchCounter == 1) {
                         firstPressedView = view;
                     }
@@ -262,19 +263,24 @@ public class ZoomableViewGroup extends ViewGroup{
                     view.setTranslationX(layoutParams.leftMargin);
                     view.setTranslationY(layoutParams.topMargin);
                     view.setLayoutParams(layoutParams);
+
+                    // TODO: Check foreach drawview, if that drawview has same start or stop coords as the view currently moving. In that case, change that drawviews coords. Or something like that...
                     break;
 
                 case MotionEvent.ACTION_UP:
                     mActivePointerId = INVALID_POINTER_ID;
                     if(firstPressedView != null && secondPressedView != null) {
                         if(firstPressedView.getId() == secondPressedView.getId()) {
-                            if(touchCounter != 0) {
-                                touchCounter--;
+                            if(drawLineActivated) {
+                                if (touchCounter >= 2) {
+                                    touchCounter--;
+                                }
+                            }
+                            else {
+                                touchCounter = 0;
                             }
                         }
                     }
-
-                    //TODO: Fix counter problem. THe app draws a line directly when moving a new textview. FIX!
 
                     if (touchCounter == 1) {
                         startX = view.getX() + view.getWidth() / 2;
@@ -287,11 +293,14 @@ public class ZoomableViewGroup extends ViewGroup{
                         DrawView drawView = new DrawView(getContext());
                         drawView.setStartCoords(startX, startY);
                         drawView.setStopCoords(stopX, stopY);
-                        drawViewList.add(drawView);
-                        touchCounter = 0;
-                    }
-                    else if (touchCounter >= 3) {
 
+                        ZoomableViewGroup.this.addView(drawView);
+                        //drawViewList.add(drawView);
+
+                        //for(View child: drawViewList){
+                        //    ZoomableViewGroup.this.addView(child);
+                        //}
+                        touchCounter = 0;
                     }
                     break;
 
