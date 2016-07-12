@@ -94,6 +94,7 @@ public class ZoomableViewGroup extends ViewGroup{
         //    DrawView drawView = drawViewList.get(i);
         //    drawView.draw(canvas);
         //}
+
         super.dispatchDraw(canvas);
         canvas.restore();
 
@@ -154,7 +155,6 @@ public class ZoomableViewGroup extends ViewGroup{
         motionEvent.setLocation(mOnTouchEventWorkingArray[0], mOnTouchEventWorkingArray[1]);
         mScaleDetector.onTouchEvent(motionEvent);
 
-        System.out.println("Hej jag är ZooooomVY!!");
         final int action = motionEvent.getAction();
 
         switch (action & MotionEvent.ACTION_MASK) {
@@ -221,7 +221,6 @@ public class ZoomableViewGroup extends ViewGroup{
         }
 
         System.out.println(touchCounter+" -> touchcounter");
-        System.out.println(drawViewList.size());
         return true;
     }
 
@@ -285,6 +284,8 @@ public class ZoomableViewGroup extends ViewGroup{
                     if (touchCounter == 1) {
                         startX = view.getX() + view.getWidth() / 2;
                         startY = view.getY() + view.getHeight() / 2;
+
+                        System.out.println("startX: "+startX+", startyY: " + startY);
                     }
                     else if (touchCounter == 2) {
                         stopX = view.getX() + view.getWidth() / 2;
@@ -295,6 +296,10 @@ public class ZoomableViewGroup extends ViewGroup{
                         drawView.setStopCoords(stopX, stopY);
 
                         ZoomableViewGroup.this.addView(drawView);
+                        firstPressedView.bringToFront();
+                        secondPressedView.bringToFront();
+                        invalidate();
+                        requestLayout();
                         //drawViewList.add(drawView);
 
                         //for(View child: drawViewList){

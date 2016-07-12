@@ -25,8 +25,9 @@ public class DrawView extends View {
     }
 
     @Override
-    public void onDraw(Canvas canvas) {
+    public void dispatchDraw(Canvas canvas) {
         canvas.drawLine(startX, startY, stopX, stopY, paint);
+        super.dispatchDraw(canvas);
     }
 
     public void setStartCoords(float x, float y) {
@@ -39,8 +40,8 @@ public class DrawView extends View {
         stopY = y;
     }
 
-    public float[] getCoords() {
-        float[] coords = new float[]{startX, startY, stopX, stopY};
+    public int[] getCoords() {
+        int[] coords = new int[]{(int)startX, (int)startY, (int)stopX, (int)stopY};
         return coords;
     }
 

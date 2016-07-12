@@ -4,12 +4,14 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Xml;
 import android.view.Gravity;
 import android.view.View;
@@ -46,8 +48,6 @@ public class MainActivity extends AppCompatActivity {
     private int mScreenWidth;
     private int mScreenHeight;
 
-    public boolean drawLine = false;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,14 +55,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Retrieve the device dimensions to adapt interface
-        mScreenWidth = getApplicationContext().getResources()
-                .getDisplayMetrics().widthPixels;
-        mScreenHeight = getApplicationContext().getResources()
-                .getDisplayMetrics().heightPixels;
-
         zoomableViewGroup = new ZoomableViewGroup(this);
         zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
+        zoomableViewGroup.setClipChildren(false);
+        zoomableViewGroup.setClipBounds(new Rect(0,0,mScreenWidth,mScreenHeight));
+        zoomableViewGroup.setBackgroundColor(Color.GREEN); //TODO: Remove this color when testing is done!
 
         rootLayout = (ViewGroup) findViewById(R.id.root);
         editText = (EditText) findViewById(R.id.editTextField);
@@ -74,15 +71,12 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
-                    RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                            RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    setNewScreen();
                     textView = new TextView(MainActivity.this);
                     setTextViewProperties(textView, ++textViewId);
                     textView.setOnTouchListener(zoomableViewGroup.mTouchListener);
-                    textView.setLayoutParams(layoutParams);
                     zoomableViewGroup.addView(textView);
 
-                    //createTextView(50,50);
                     editText.setText(emptyEditTextField());
                     Toast.makeText(view.getContext(), "Success!", Toast.LENGTH_SHORT).show();
                 } else {
@@ -93,7 +87,25 @@ public class MainActivity extends AppCompatActivity {
         mapLayout.addView(zoomableViewGroup);
     }
 
+    public void setNewScreen(){
+        // Retrieve the device dimensions to adapt interface
+        mScreenWidth = getApplicationContext().getResources()
+                .getDisplayMetrics().widthPixels;
+        mScreenHeight = getApplicationContext().getResources()
+                .getDisplayMetrics().heightPixels;
+
+    }
+
     public void setTextViewProperties(TextView textView, int id){
+/* LOOK AT "to do" IN THIS FUNCTIONBLOCK.
+        zoomableViewGroup.setBottom(this.getWindow().getDecorView().getBottom());
+        zoomableViewGroup.setRight(this.getWindow().getDecorView().getRight());
+
+        int xMiddle = zoomableViewGroup.getRight()/2;
+        int yMiddle = zoomableViewGroup.getBottom()/2;
+*/
+
+
         textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
         textView.setTextSize(20);
@@ -102,6 +114,16 @@ public class MainActivity extends AppCompatActivity {
         textView.setTag("TextView");
         textView.setId(id);
         textView.setText(editText.getText());
+        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
+                RelativeLayout.LayoutParams.WRAP_CONTENT);
+
+        //TODO: Tried to get the "bubbles" to spawn in the middle of screen.
+        //layoutParams.leftMargin = zoomableViewGroup.getClipBounds().centerX();
+        //layoutParams.leftMargin = zoomableViewGroup.getClipBounds().centerY();
+        //textView.setTranslationX(xMiddle);
+        //textView.setTranslationY(yMiddle);
+
+        textView.setLayoutParams(layoutParams);
 
     }
 
