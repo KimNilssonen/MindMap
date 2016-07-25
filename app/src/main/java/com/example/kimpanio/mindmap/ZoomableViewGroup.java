@@ -1,12 +1,9 @@
 package com.example.kimpanio.mindmap;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.util.DisplayMetrics;
@@ -14,16 +11,13 @@ import android.util.Log;
 import android.view.*;
 import android.widget.RelativeLayout;
 
-import java.util.ArrayList;
-import java.util.List;
-
 
 public class ZoomableViewGroup extends ViewGroup{
 
     private static final int INVALID_POINTER_ID = 1;
     private int mActivePointerId = INVALID_POINTER_ID;
     public boolean drawLineActivated = false;
-    private int touchCounter;
+    private Bubble selectedBubble;
 
     private float mScaleFactor = 1;
     private ScaleGestureDetector mScaleDetector;
@@ -41,29 +35,15 @@ public class ZoomableViewGroup extends ViewGroup{
     private float mFocusX;
     private float mFocusY;
 
-    private int mXDelta;
-    private int mYDelta;
-
     private float[] mInvalidateWorkingArray = new float[6];
     private float[] mDispatchTouchEventWorkingArray = new float[2];
     private float[] mOnTouchEventWorkingArray = new float[2];
-
-    // Tried to use these for drawing line.
-    private View firstPressedView;
-    private View secondPressedView;
-    private float startX;
-    private float startY;
-    private float stopX;
-    private float stopY;
-    private DisplayMetrics metrics;
 
     public ZoomableViewGroup(Context context) {
         super(context);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         mTranslateMatrix.setTranslate(0, 0);
         mScaleMatrix.setScale(1, 1);
-        touchCounter = 0;
-        metrics = Resources.getSystem().getDisplayMetrics();
     }
 
     @Override
@@ -144,6 +124,18 @@ public class ZoomableViewGroup extends ViewGroup{
         return a;
     }
 
+    public boolean handleBubbleTouch(Bubble bubble){
+        if(drawLineActivated){
+            if(selectedBubble != null && selectedBubble != bubble){
+                selectedBubble.connect(bubble);
+                selectedBubble = null;
+                return drawLineActivated;
+            }
+            selectedBubble = bubble;
+        }
+        return drawLineActivated;
+    }
+
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent){
         mOnTouchEventWorkingArray[0] = motionEvent.getX();
@@ -221,107 +213,6 @@ public class ZoomableViewGroup extends ViewGroup{
         return true;
     }
 
-    // Used for the textviews.
-    public OnTouchListener mTouchListener = new  OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            view.bringToFront();
-
-            final int X = (int)motionEvent.getRawX();
-            final int Y = (int)motionEvent.getRawY();
-
-            switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-                case MotionEvent.ACTION_DOWN:
-                    if(drawLineActivated) {
-                        touchCounter++;
-                    }
-                    else {
-                        touchCounter = 0;
-                    }
-                    RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                    mXDelta = X - lParams.leftMargin;
-                    mYDelta = Y - lParams.topMargin;
-                    if(touchCounter == 1) {
-                        firstPressedView = view;
-                    }
-                    else if(touchCounter == 2) {
-                        secondPressedView = view;
-                    }
-                    System.out.println(touchCounter+" --- id:"+view.getId());
-                    // Save the ID of this pointer
-                    mActivePointerId = motionEvent.getPointerId(0);
-                    break;
-
-                case MotionEvent.ACTION_MOVE:
-                    RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                    layoutParams.leftMargin = X - mXDelta;
-                    layoutParams.topMargin = Y - mYDelta;
-                    view.setTranslationX(layoutParams.leftMargin);
-                    view.setTranslationY(layoutParams.topMargin);
-                    view.setLayoutParams(layoutParams);
-
-                    // TODO: Check foreach drawview, if that drawview has same start or stop coords as the view currently moving. In that case, change that drawviews coords. Or something like that...
-                    break;
-
-                case MotionEvent.ACTION_UP:
-                    mActivePointerId = INVALID_POINTER_ID;
-                    if(firstPressedView != null && secondPressedView != null) {
-                        if(firstPressedView.getId() == secondPressedView.getId()) {
-                            if(drawLineActivated) {
-                                if (touchCounter >= 2) {
-                                    touchCounter--;
-                                }
-                            }
-                            else {
-                                touchCounter = 0;
-                            }
-                        }
-                    }
-
-                    if (touchCounter == 1) {
-                        startX = view.getX() + view.getWidth() / 2;
-                        startY = view.getY() + view.getHeight() / 2;
-
-                        System.out.println("startX: "+startX+", startyY: " + startY);
-                    }
-                    else if (touchCounter == 2) {
-                        stopX = view.getX() + view.getWidth() / 2;
-                        stopY = view.getY() + view.getHeight() / 2;
-
-                        DrawView drawView = new DrawView(getContext());
-                        drawView.setStartCoords(startX, startY);
-                        drawView.setStopCoords(stopX, stopY);
-
-                        ZoomableViewGroup.this.addView(drawView);
-                        firstPressedView.bringToFront();
-                        secondPressedView.bringToFront();
-                        invalidate();
-                        requestLayout();
-                        //drawViewList.add(drawView);
-
-                        //for(View child: drawViewList){
-                        //    ZoomableViewGroup.this.addView(child);
-                        //}
-                        touchCounter = 0;
-                    }
-                    break;
-
-                case MotionEvent.ACTION_POINTER_UP:
-                    // Extract the index of the pointer that left the touch sensor
-                    final int pointerIndex = (motionEvent.getAction() & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
-                    final int pointerId = motionEvent.getPointerId(pointerIndex);
-                    if (pointerId == mActivePointerId) {
-                        // This was our active pointer going up. Choose a new
-                        // active pointer and adjust accordingly.
-                        final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
-                        mLastTouchX = motionEvent.getX(newPointerIndex);
-                        mLastTouchY = motionEvent.getY(newPointerIndex);
-                        break;
-                    }
-            }
-            return true;
-        }
-    };
 
     // TODO: Fix better spawnposition for textviews. Even when you have panned the screen, it should work but now it doesnt.
     public Point getScreenMidPoint() {

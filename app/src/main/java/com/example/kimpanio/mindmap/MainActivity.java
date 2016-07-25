@@ -31,6 +31,9 @@ import org.xmlpull.v1.XmlSerializer;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -42,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewGroup addTextLayout;
     private ViewGroup rootLayout;
     private ViewGroup mapLayout;
-    //private CustomTextView customTextView;
+    private HashMap<UUID, Bubble> bubbleMap;
     private TextView textView;
     private int textViewId = 0;
 
@@ -58,10 +61,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        bubbleMap = new HashMap<UUID, Bubble>();
         zoomableViewGroup = new ZoomableViewGroup(MainActivity.this);
         zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
         zoomableViewGroup.setClipChildren(false);
-        zoomableViewGroup.setBackgroundColor(Color.GREEN);
 
         rootLayout = (ViewGroup) findViewById(R.id.root);
         editText = (EditText) findViewById(R.id.editTextField);
@@ -73,11 +76,10 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
-                    textView = new TextView(MainActivity.this);
-                    setTextViewProperties(textView, ++textViewId);
-                    setTextViewSpawnPoint(textView);
-                    textView.setOnTouchListener(zoomableViewGroup.mTouchListener);
-                    zoomableViewGroup.addView(textView);
+
+                    Bubble bubble = new Bubble(editText.getText().toString(),0,0);
+                    bubbleMap.put(bubble.getId(), bubble);
+                    bubble.show(zoomableViewGroup);
 
                     editText.setText(emptyEditTextField());
                     Toast.makeText(view.getContext(), "Success!", Toast.LENGTH_SHORT).show();
@@ -89,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
         mapLayout.addView(zoomableViewGroup);
     }
 
+    // OLD - Not used.
     public void setNewScreen(){
         // Retrieve the device dimensions to adapt interface
         mScreenWidth = getApplicationContext().getResources()
@@ -98,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         zoomableViewGroup.setClipBounds(new Rect());
     }
 
+    // OLD - Not used.
     public void setTextViewProperties(TextView textView, int id){
         textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
@@ -109,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
         textView.setText(editText.getText());
     }
 
+    // OLD - Not used.
     public void setTextViewSpawnPoint(TextView textView) {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
@@ -124,8 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void saveMap(View view) {
         Intent intent = new Intent(this, SaveMapActivity.class);
-        Serializable xmlContent = new File(getApplicationContext().getFilesDir(), "content_main.xml");
-        intent.putExtra("XML_CONTENT", xmlContent);
+        intent.putExtra("MAP", bubbleMap);
         startActivity(intent);
     }
 

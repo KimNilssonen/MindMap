@@ -9,7 +9,7 @@ import android.view.View;
 /**
  * Created by Kimpanio on 2016-06-03.
  */
-public class DrawView extends View {
+public class LineView extends View {
     Paint paint = new Paint();
 
     // Variables for coords for drawing line.
@@ -18,7 +18,7 @@ public class DrawView extends View {
     private float stopX;
     private float stopY;
 
-    public DrawView(Context context) {
+    public LineView(Context context) {
         super(context);
         paint.setColor(Color.BLACK);
         paint.setStrokeWidth(5);
@@ -33,19 +33,12 @@ public class DrawView extends View {
     public void setStartCoords(float x, float y) {
         startX = x;
         startY = y;
+        invalidate();
     }
 
     public void setStopCoords(float x, float y) {
         stopX = x;
         stopY = y;
-    }
-
-    public int[] getCoords() {
-        int[] coords = new int[]{(int)startX, (int)startY, (int)stopX, (int)stopY};
-        return coords;
-    }
-
-    public Paint getPaint() {
-        return paint;
+        invalidate();
     }
 }
