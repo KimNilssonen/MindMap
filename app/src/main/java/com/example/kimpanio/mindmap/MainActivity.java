@@ -2,8 +2,10 @@ package com.example.kimpanio.mindmap;
 
 import android.content.ClipData;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -12,6 +14,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.Xml;
 import android.view.Gravity;
 import android.view.View;
@@ -55,11 +58,10 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        zoomableViewGroup = new ZoomableViewGroup(this);
+        zoomableViewGroup = new ZoomableViewGroup(MainActivity.this);
         zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
         zoomableViewGroup.setClipChildren(false);
-        zoomableViewGroup.setClipBounds(new Rect(0,0,mScreenWidth,mScreenHeight));
-        zoomableViewGroup.setBackgroundColor(Color.GREEN); //TODO: Remove this color when testing is done!
+        zoomableViewGroup.setBackgroundColor(Color.GREEN);
 
         rootLayout = (ViewGroup) findViewById(R.id.root);
         editText = (EditText) findViewById(R.id.editTextField);
@@ -71,9 +73,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
-                    setNewScreen();
                     textView = new TextView(MainActivity.this);
                     setTextViewProperties(textView, ++textViewId);
+                    setTextViewSpawnPoint(textView);
                     textView.setOnTouchListener(zoomableViewGroup.mTouchListener);
                     zoomableViewGroup.addView(textView);
 
@@ -93,19 +95,10 @@ public class MainActivity extends AppCompatActivity {
                 .getDisplayMetrics().widthPixels;
         mScreenHeight = getApplicationContext().getResources()
                 .getDisplayMetrics().heightPixels;
-
+        zoomableViewGroup.setClipBounds(new Rect());
     }
 
     public void setTextViewProperties(TextView textView, int id){
-/* LOOK AT "to do" IN THIS FUNCTIONBLOCK.
-        zoomableViewGroup.setBottom(this.getWindow().getDecorView().getBottom());
-        zoomableViewGroup.setRight(this.getWindow().getDecorView().getRight());
-
-        int xMiddle = zoomableViewGroup.getRight()/2;
-        int yMiddle = zoomableViewGroup.getBottom()/2;
-*/
-
-
         textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
         textView.setTextSize(20);
@@ -114,17 +107,19 @@ public class MainActivity extends AppCompatActivity {
         textView.setTag("TextView");
         textView.setId(id);
         textView.setText(editText.getText());
+    }
+
+    public void setTextViewSpawnPoint(TextView textView) {
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
 
-        //TODO: Tried to get the "bubbles" to spawn in the middle of screen.
-        //layoutParams.leftMargin = zoomableViewGroup.getClipBounds().centerX();
-        //layoutParams.leftMargin = zoomableViewGroup.getClipBounds().centerY();
-        //textView.setTranslationX(xMiddle);
-        //textView.setTranslationY(yMiddle);
-
+        //TODO: "Bubbles spawn in the middle, but only until I start pan the screen."
+        Point point = zoomableViewGroup.getScreenMidPoint();
+        layoutParams.leftMargin = point.x - textView.getWidth()/2;
+        layoutParams.topMargin = point.y - textView.getHeight()/2;
+        textView.setTranslationX(layoutParams.leftMargin);
+        textView.setTranslationY(layoutParams.topMargin);
         textView.setLayoutParams(layoutParams);
-
     }
 
     public void saveMap(View view) {

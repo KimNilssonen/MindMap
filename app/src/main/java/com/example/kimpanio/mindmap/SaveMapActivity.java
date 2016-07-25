@@ -70,7 +70,6 @@ public class SaveMapActivity extends AppCompatActivity {
         //TODO: xmlContent get a value of null. Fix this!
         final Serializable xmlContent = getIntent().getExtras().getSerializable("XML_INTENT");
 
-        System.out.println(xmlContent);
         saveButton = (Button) findViewById(R.id.saveFileButton);
         editText = (EditText) findViewById(R.id.saveEditText);
 

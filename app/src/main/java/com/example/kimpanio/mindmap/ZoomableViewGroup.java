@@ -1,11 +1,16 @@
 package com.example.kimpanio.mindmap;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Point;
 import android.graphics.Rect;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.*;
 import android.widget.RelativeLayout;
 
@@ -25,8 +30,8 @@ public class ZoomableViewGroup extends ViewGroup{
     private Matrix mScaleMatrix = new Matrix();
     private Matrix mScaleMatrixInverse = new Matrix();
 
-    private float mPosX;
-    private float mPosY;
+    public float mPosX;
+    public float mPosY;
     private Matrix mTranslateMatrix = new Matrix();
     private Matrix mTranslateMatrixInverse = new Matrix();
 
@@ -50,15 +55,15 @@ public class ZoomableViewGroup extends ViewGroup{
     private float startY;
     private float stopX;
     private float stopY;
-    private List<DrawView> drawViewList;
+    private DisplayMetrics metrics;
 
     public ZoomableViewGroup(Context context) {
         super(context);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         mTranslateMatrix.setTranslate(0, 0);
         mScaleMatrix.setScale(1, 1);
-        drawViewList = new ArrayList<>(); // Is not in use atm. Used another way without this list.
         touchCounter = 0;
+        metrics = Resources.getSystem().getDisplayMetrics();
     }
 
     @Override
@@ -90,14 +95,8 @@ public class ZoomableViewGroup extends ViewGroup{
         canvas.save();
         canvas.translate(mPosX, mPosY);
         canvas.scale(mScaleFactor, mScaleFactor, mFocusX, mFocusY);
-        //for (int i = 0; i < drawViewList.size(); i++){
-        //    DrawView drawView = drawViewList.get(i);
-        //    drawView.draw(canvas);
-        //}
-
         super.dispatchDraw(canvas);
         canvas.restore();
-
     }
 
     @Override
@@ -219,8 +218,6 @@ public class ZoomableViewGroup extends ViewGroup{
                 break;
             }
         }
-
-        System.out.println(touchCounter+" -> touchcounter");
         return true;
     }
 
@@ -325,6 +322,20 @@ public class ZoomableViewGroup extends ViewGroup{
             return true;
         }
     };
+
+    // TODO: Fix better spawnposition for textviews. Even when you have panned the screen, it should work but now it doesnt.
+    public Point getScreenMidPoint() {
+        Rect rectf = new Rect();
+        getLocalVisibleRect(rectf);
+
+
+        Log.d("clipBounds   :", String.valueOf(this.getClipBounds()));
+        Log.d("Rectf        :", String.valueOf(rectf));
+        int centerX = rectf.centerX();
+        int centerY = rectf.centerY();
+
+        return new Point(centerX, centerY);
+    }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
