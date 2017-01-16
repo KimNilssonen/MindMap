@@ -51,9 +51,13 @@ public class Bubble implements Serializable, View.OnTouchListener {
         looseConnections = new HashSet<UUID>();
     }
 
+    public void setTextView() {
+        textView = new TextView(parentView.getContext());
+    }
+
     public void show(ZoomableViewGroup zoomableViewGroup){
         parentView = zoomableViewGroup;
-        textView = new TextView(zoomableViewGroup.getContext());
+        setTextView();
         setTextViewProperties();
         setTextViewSpawnPoint();
         textView.setOnTouchListener(this);
@@ -66,23 +70,23 @@ public class Bubble implements Serializable, View.OnTouchListener {
 
         final int X = (int)motionEvent.getRawX();
         final int Y = (int)motionEvent.getRawY();
+        RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
 
         switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
                 if (parentView.handleBubbleTouch(this))
                     break;
                 beingDragged = true;
-                RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                xPositionStart = X - lParams.leftMargin;
-                yPositionStart = Y - lParams.topMargin;
+                xPositionStart = X - layoutParams.leftMargin;
+                yPositionStart = Y - layoutParams.topMargin;
                 break;
 
             case MotionEvent.ACTION_MOVE:
                 if(!beingDragged)
                     break;
-                RelativeLayout.LayoutParams layoutParams = (RelativeLayout.LayoutParams) view.getLayoutParams();
-                positionX = X - xPositionStart;
+                positionX = X - xPositionStart; //TODO: FIX
                 positionY = Y - yPositionStart;
+
                 layoutParams.leftMargin = (int) positionX;
                 layoutParams.topMargin = (int) positionY;
                 view.setTranslationX(layoutParams.leftMargin);
@@ -109,6 +113,7 @@ public class Bubble implements Serializable, View.OnTouchListener {
         otherBubble.connections.put(this.id, connection);
         looseConnections.add(otherBubble.id);
         otherBubble.looseConnections.add(this.id);
+
         connection.show(parentView);
     }
 
@@ -136,10 +141,18 @@ public class Bubble implements Serializable, View.OnTouchListener {
 
         //TODO: "Bubbles spawn in the middle, but only until I start pan the screen."
         Point point = parentView.getScreenMidPoint();
-        layoutParams.leftMargin = point.x - textView.getWidth()/2;
-        layoutParams.topMargin = point.y - textView.getHeight()/2;
-        textView.setTranslationX(layoutParams.leftMargin);
-        textView.setTranslationY(layoutParams.topMargin);
+        layoutParams.leftMargin = point.x + textView.getWidth()/2;
+        layoutParams.topMargin = point.y + textView.getHeight()/2;
+        if(positionX == 0 && positionY == 0) {
+            textView.setTranslationX(layoutParams.leftMargin);
+            textView.setTranslationY(layoutParams.topMargin);
+        }
+        else {
+            layoutParams.leftMargin = (int)positionX;
+            layoutParams.topMargin = (int)positionY;
+            textView.setTranslationX(layoutParams.leftMargin);
+            textView.setTranslationY(layoutParams.topMargin);
+        }
         textView.setLayoutParams(layoutParams);
     }
 
@@ -159,8 +172,7 @@ public class Bubble implements Serializable, View.OnTouchListener {
         connections = new HashMap<UUID, Connection>();
         looseConnections = new HashSet<UUID>();
         Object[] rawSet = (Object[])inputStream.readObject();
-        for (Object rawUUID : rawSet)
-        {
+        for (Object rawUUID : rawSet) {
             looseConnections.add((UUID)rawUUID);
         }
     }

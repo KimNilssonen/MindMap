@@ -41,8 +41,6 @@ public class SaveMapActivity extends AppCompatActivity {
         saveButton = (Button) findViewById(R.id.saveFileButton);
         editText = (EditText) findViewById(R.id.saveEditText);
 
-
-
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

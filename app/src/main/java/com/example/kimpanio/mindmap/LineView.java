@@ -33,12 +33,10 @@ public class LineView extends View {
     public void setStartCoords(float x, float y) {
         startX = x;
         startY = y;
-        invalidate();
     }
 
     public void setStopCoords(float x, float y) {
         stopX = x;
         stopY = y;
-        invalidate();
     }
 }

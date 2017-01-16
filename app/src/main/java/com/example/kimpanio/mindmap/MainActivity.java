@@ -61,10 +61,22 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        bubbleMap = new HashMap<UUID, Bubble>();
         zoomableViewGroup = new ZoomableViewGroup(MainActivity.this);
         zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
         zoomableViewGroup.setClipChildren(false);
+
+        if(getIntent().hasExtra("MAP")) {
+            Serializable mapData = getIntent().getSerializableExtra("MAP");
+
+            bubbleMap = (HashMap) mapData;
+            for(Bubble bubble: bubbleMap.values()) {
+                bubble.show(zoomableViewGroup);
+                bubble.reconnect(bubbleMap);
+            }
+        }
+        else {
+            bubbleMap = new HashMap<UUID, Bubble>();
+        }
 
         rootLayout = (ViewGroup) findViewById(R.id.root);
         editText = (EditText) findViewById(R.id.editTextField);
@@ -99,32 +111,6 @@ public class MainActivity extends AppCompatActivity {
         mScreenHeight = getApplicationContext().getResources()
                 .getDisplayMetrics().heightPixels;
         zoomableViewGroup.setClipBounds(new Rect());
-    }
-
-    // OLD - Not used.
-    public void setTextViewProperties(TextView textView, int id){
-        textView.setBackgroundResource(R.drawable.background);
-        textView.setTextColor(Color.BLACK);
-        textView.setTextSize(20);
-        textView.setGravity(Gravity.CENTER);
-        textView.setPadding(20, 20, 20, 20);
-        textView.setTag("TextView");
-        textView.setId(id);
-        textView.setText(editText.getText());
-    }
-
-    // OLD - Not used.
-    public void setTextViewSpawnPoint(TextView textView) {
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
-                RelativeLayout.LayoutParams.WRAP_CONTENT);
-
-        //TODO: "Bubbles spawn in the middle, but only until I start pan the screen."
-        Point point = zoomableViewGroup.getScreenMidPoint();
-        layoutParams.leftMargin = point.x - textView.getWidth()/2;
-        layoutParams.topMargin = point.y - textView.getHeight()/2;
-        textView.setTranslationX(layoutParams.leftMargin);
-        textView.setTranslationY(layoutParams.topMargin);
-        textView.setLayoutParams(layoutParams);
     }
 
     public void saveMap(View view) {
