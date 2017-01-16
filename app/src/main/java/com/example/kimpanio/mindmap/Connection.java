@@ -23,8 +23,12 @@ public class Connection {
     }
 
     public void update() {
-        lineView.setStartCoords(bubbleA.getPositionX() + bubbleA.getWidth()/2, bubbleA.getPositionY() + bubbleA.getHeight()/2);
-        lineView.setStopCoords(bubbleB.getPositionX() + bubbleB.getWidth()/2, bubbleB.getPositionY() + bubbleB.getHeight()/2);
+        if(parentView != null){
+            bubbleA.setParentView(parentView);
+            bubbleB.setParentView(parentView);
+        }
+        lineView.setStartCoords((bubbleA.getPositionX() + bubbleA.getWidth()/2), (bubbleA.getPositionY() + bubbleA.getHeight()/2));
+        lineView.setStopCoords((bubbleB.getPositionX() + bubbleB.getWidth()/2), (bubbleB.getPositionY() + bubbleB.getHeight()/2));
         lineView.invalidate();
     }
 

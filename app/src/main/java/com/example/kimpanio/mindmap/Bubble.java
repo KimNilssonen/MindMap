@@ -51,13 +51,21 @@ public class Bubble implements Serializable, View.OnTouchListener {
         looseConnections = new HashSet<UUID>();
     }
 
+    public void setParentView(ZoomableViewGroup zoomableViewGroup) {
+        parentView = zoomableViewGroup;
+    }
+
     public void setTextView() {
         textView = new TextView(parentView.getContext());
     }
 
     public void show(ZoomableViewGroup zoomableViewGroup){
-        parentView = zoomableViewGroup;
-        setTextView();
+        if(parentView == null) {
+            setParentView(zoomableViewGroup);
+        }
+        if(textView == null) {
+            setTextView();
+        }
         setTextViewProperties();
         setTextViewSpawnPoint();
         textView.setOnTouchListener(this);
@@ -194,10 +202,16 @@ public class Bubble implements Serializable, View.OnTouchListener {
     }
 
     public float getWidth(){
+        if(textView == null) {
+            setTextView();
+        }
         return textView.getWidth();
     }
 
     public float getHeight() {
+        if(textView == null) {
+            setTextView();
+        }
         return textView.getHeight();
     }
 

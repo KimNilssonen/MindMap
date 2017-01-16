@@ -97,9 +97,10 @@ public class OpenMapActivity extends AppCompatActivity {
         // as you specify a parent activity in AndroidManifest.xml.
 
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
+
         switch (item.getItemId()) {
             case R.id.open_settings:
-                openFile(adapter.getItem(1)); // TODO: Temporary "getItem()"
+                openFile(adapter.getItem(5)); // TODO: Temporary "getItem()"
             case R.id.delete_settings:
 //                deleteFile(adapter.getItem(1));
             default:
