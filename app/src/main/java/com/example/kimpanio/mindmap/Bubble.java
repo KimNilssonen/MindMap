@@ -1,7 +1,10 @@
 package com.example.kimpanio.mindmap;
 
+
 import android.graphics.Color;
+
 import android.graphics.Point;
+import android.graphics.RectF;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,14 +16,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.security.KeyStore;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -92,7 +89,7 @@ public class Bubble implements Serializable, View.OnTouchListener {
             case MotionEvent.ACTION_MOVE:
                 if(!beingDragged)
                     break;
-                positionX = X - xPositionStart; //TODO: FIX
+                positionX = X - xPositionStart;
                 positionY = Y - yPositionStart;
 
                 layoutParams.leftMargin = (int) positionX;
@@ -101,9 +98,7 @@ public class Bubble implements Serializable, View.OnTouchListener {
                 view.setTranslationY(layoutParams.topMargin);
                 view.setLayoutParams(layoutParams);
 
-                for(Connection connection : connections.values()){
-                    connection.update();
-                }
+                updateConnections();
                 break;
 
             case MotionEvent.ACTION_UP:
@@ -134,6 +129,12 @@ public class Bubble implements Serializable, View.OnTouchListener {
         }
     }
 
+    public void updateConnections(){
+        for(Connection connection : connections.values()){
+            connection.update();
+        }
+    }
+
     private void setTextViewProperties(){
         textView.setBackgroundResource(R.drawable.background);
         textView.setTextColor(Color.BLACK);
@@ -144,6 +145,7 @@ public class Bubble implements Serializable, View.OnTouchListener {
     }
 
     private void setTextViewSpawnPoint() {
+
         RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
 
@@ -162,6 +164,8 @@ public class Bubble implements Serializable, View.OnTouchListener {
             textView.setTranslationY(layoutParams.topMargin);
         }
         textView.setLayoutParams(layoutParams);
+
+
     }
 
     private void writeObject(ObjectOutputStream outputStream) throws IOException{

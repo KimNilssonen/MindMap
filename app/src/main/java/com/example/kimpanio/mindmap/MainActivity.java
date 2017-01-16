@@ -1,22 +1,12 @@
 package com.example.kimpanio.mindmap;
 
-import android.content.ClipData;
 import android.content.Intent;
-import android.content.res.Resources;
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Point;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.util.Xml;
-import android.view.Gravity;
+import android.view.Display;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,15 +14,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import org.xmlpull.v1.XmlSerializer;
-
-import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 
@@ -46,13 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private ViewGroup rootLayout;
     private ViewGroup mapLayout;
     private HashMap<UUID, Bubble> bubbleMap;
-    private TextView textView;
-    private int textViewId = 0;
 
-    private RelativeLayout.LayoutParams layoutParam;
-
-    private int mScreenWidth;
-    private int mScreenHeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,16 +80,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         mapLayout.addView(zoomableViewGroup);
-    }
-
-    // OLD - Not used.
-    public void setNewScreen(){
-        // Retrieve the device dimensions to adapt interface
-        mScreenWidth = getApplicationContext().getResources()
-                .getDisplayMetrics().widthPixels;
-        mScreenHeight = getApplicationContext().getResources()
-                .getDisplayMetrics().heightPixels;
-        zoomableViewGroup.setClipBounds(new Rect());
     }
 
     public void saveMap(View view) {

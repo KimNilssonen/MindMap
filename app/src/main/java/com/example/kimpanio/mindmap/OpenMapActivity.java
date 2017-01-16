@@ -50,19 +50,26 @@ public class OpenMapActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
         registerForContextMenu(listView);
 
+        // Used for opening files on click.
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                openFile(adapter.getItem(position));
+            }
+        });
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public void deleteFile(File file){
         file.delete();
         Toast.makeText(getApplicationContext(), "File deleted!", Toast.LENGTH_LONG).show();
-//        finish();
+        finish();
         startActivity(getIntent());
     }
 
     public void openFile(File file) {
         try {
-            //TODO: FIX!
+            //TODO: FIX the lines when opening a file!
             Intent intent = new Intent(this, MainActivity.class);
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 
@@ -99,10 +106,8 @@ public class OpenMapActivity extends AppCompatActivity {
         AdapterView.AdapterContextMenuInfo info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
 
         switch (item.getItemId()) {
-            case R.id.open_settings:
-                openFile(adapter.getItem(5)); // TODO: Temporary "getItem()"
             case R.id.delete_settings:
-//                deleteFile(adapter.getItem(1));
+                deleteFile(adapter.getItem(info.position));
             default:
                 return super.onContextItemSelected(item);
         }
