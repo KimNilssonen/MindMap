@@ -1,5 +1,7 @@
 package com.example.kimpanio.mindmap;
 
+import android.os.Build;
+
 /**
  * Created by Kimpanio on 2016-07-25.
  */
@@ -18,18 +20,23 @@ public class Connection {
     public void show(ZoomableViewGroup zoomableViewGroup){
         parentView = zoomableViewGroup;
         lineView = new LineView(zoomableViewGroup.getContext());
-        update();
         parentView.addView(lineView);
+        update();
     }
 
     public void update() {
-        if(parentView != null){
-            bubbleA.setParentView(parentView);
-            bubbleB.setParentView(parentView);
-        }
-        lineView.setStartCoords((bubbleA.getPositionX() + bubbleA.getWidth()/2), (bubbleA.getPositionY() + bubbleA.getHeight()/2));
-        lineView.setStopCoords((bubbleB.getPositionX() + bubbleB.getWidth()/2), (bubbleB.getPositionY() + bubbleB.getHeight()/2));
+//        if(parentView != null){
+//            bubbleA.setParentView(parentView);
+//            bubbleB.setParentView(parentView);
+//        }
+
+        lineView.setStart(bubbleA);
+        lineView.setStop(bubbleB);
+
         lineView.invalidate();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            lineView.setTranslationZ(-1);
+        }
     }
 
 }

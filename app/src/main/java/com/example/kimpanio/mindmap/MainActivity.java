@@ -1,12 +1,13 @@
 package com.example.kimpanio.mindmap;
 
+import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Point;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.Display;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.Serializable;
@@ -36,22 +38,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         zoomableViewGroup = new ZoomableViewGroup(MainActivity.this);
-        zoomableViewGroup.setLayoutParams(new RelativeLayout.LayoutParams(-2, -2));
         zoomableViewGroup.setClipChildren(false);
 
         if(getIntent().hasExtra("MAP")) {
-            Serializable mapData = getIntent().getSerializableExtra("MAP");
-
-            bubbleMap = (HashMap) mapData;
-            for(Bubble bubble: bubbleMap.values()) {
-                bubble.show(zoomableViewGroup);
-                bubble.reconnect(bubbleMap);
-            }
+            renderBubbleMap(getIntent().getSerializableExtra("MAP"));
         }
         else {
             bubbleMap = new HashMap<UUID, Bubble>();
@@ -67,8 +63,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(editText.getText())) {
-
-                    Bubble bubble = new Bubble(editText.getText().toString(),0,0);
+                    Bubble bubble = new Bubble(zoomableViewGroup, new TextView(MainActivity.this), editText.getText().toString(),0,0);
                     bubbleMap.put(bubble.getId(), bubble);
                     bubble.show(zoomableViewGroup);
 
@@ -90,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void openMap(View view) {
         Intent intent = new Intent(this, OpenMapActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
@@ -106,8 +102,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void clearBoard(ViewGroup view) {
-        view.removeAllViews();
+    public void renderBubbleMap(Serializable mapData) {
+        bubbleMap = (HashMap) mapData;
+        for(Bubble bubble: bubbleMap.values()) {
+            bubble.show(zoomableViewGroup);
+            bubble.reconnect(bubbleMap);
+        }
+    }
+
+    public void newBoard() {
+        bubbleMap.values().clear();
+        zoomableViewGroup.removeAllViews(); // Used to visually remove and re-draw the view.
     }
 
     public String emptyEditTextField(){
@@ -130,11 +135,11 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+            startActivity(new Intent(this, Settings.class));
         }
 
         if(id == R.id.clear_board) {
-            clearBoard(zoomableViewGroup);
+            newBoard();
         }
 
         if (id == R.id.save_map) {
@@ -147,6 +152,9 @@ public class MainActivity extends AppCompatActivity {
 
         if(id == R.id.draw_line) {
             drawLines(zoomableViewGroup, item);
+        }
+        if(id == R.id.exit_application) {
+            this.finishAffinity();
         }
 
         return super.onOptionsItemSelected(item);

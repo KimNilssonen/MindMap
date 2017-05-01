@@ -1,10 +1,11 @@
 package com.example.kimpanio.mindmap;
 
-
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 
 import android.graphics.Point;
-import android.graphics.RectF;
+import android.graphics.drawable.GradientDrawable;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -26,23 +27,28 @@ import java.util.UUID;
 public class Bubble implements Serializable, View.OnTouchListener {
 
     private String content;
-    private int xPositionStart;
-    private int yPositionStart;
+    private float xPositionStart;
+    private float yPositionStart;
     private float positionX;
     private float positionY;
+    private float width;
+    private float height;
     private boolean beingDragged = false;
+    private String color;
 
     private UUID id;
     private HashMap<UUID, Connection> connections;
     private HashSet<UUID> looseConnections;
 
-    private TextView textView;
+    public TextView textView;
     private ZoomableViewGroup parentView;
 
-    public Bubble(String string, float x, float y){
+    public Bubble(ZoomableViewGroup zoomableViewGroup, TextView tv, String string, float x, float y){
         content = string;
         positionX = x;
         positionY = y;
+        textView = tv;
+        parentView = zoomableViewGroup;
         id = UUID.randomUUID();
         connections = new HashMap<UUID, Connection>();
         looseConnections = new HashSet<UUID>();
@@ -135,12 +141,28 @@ public class Bubble implements Serializable, View.OnTouchListener {
         }
     }
 
+    public GradientDrawable setDrawableProperties() {
+        SharedPreferences sp =  parentView.getContext().getApplicationContext().getSharedPreferences("COLOR_SETTINGS", Activity.MODE_PRIVATE);
+        color = sp.getString("COLOR_CODE", "#ff7000");
+
+        int strokeWidth = 2;
+        int strokeColor = Color.parseColor("#000000");
+        int fillColor = Color.parseColor(color);
+
+        GradientDrawable gd = new GradientDrawable();
+        gd.setShape(GradientDrawable.OVAL);
+        gd.setColor(fillColor);
+        gd.setStroke(strokeWidth, strokeColor);
+
+        return gd;
+    }
+
     private void setTextViewProperties(){
-        textView.setBackgroundResource(R.drawable.background);
+        textView.setBackground(setDrawableProperties());
         textView.setTextColor(Color.BLACK);
         textView.setTextSize(20);
         textView.setGravity(Gravity.CENTER);
-        textView.setPadding(20, 20, 20, 20);
+        textView.setPadding(50, 50, 50, 50);
         textView.setText(content);
     }
 
@@ -151,21 +173,29 @@ public class Bubble implements Serializable, View.OnTouchListener {
 
         //TODO: "Bubbles spawn in the middle, but only until I start pan the screen."
         Point point = parentView.getScreenMidPoint();
-        layoutParams.leftMargin = point.x + textView.getWidth()/2;
-        layoutParams.topMargin = point.y + textView.getHeight()/2;
+        layoutParams.leftMargin = point.x;
+        layoutParams.topMargin = point.y;
+
         if(positionX == 0 && positionY == 0) {
             textView.setTranslationX(layoutParams.leftMargin);
             textView.setTranslationY(layoutParams.topMargin);
+            positionX = layoutParams.leftMargin;
+            positionY = layoutParams.topMargin;
         }
         else {
-            layoutParams.leftMargin = (int)positionX;
-            layoutParams.topMargin = (int)positionY;
+            layoutParams.leftMargin = (int)positionX + textView.getWidth()/2;
+            layoutParams.topMargin = (int)positionY + textView.getHeight()/2;
             textView.setTranslationX(layoutParams.leftMargin);
             textView.setTranslationY(layoutParams.topMargin);
+            positionX = layoutParams.leftMargin;
+            positionY = layoutParams.topMargin;
+
         }
         textView.setLayoutParams(layoutParams);
-
-
+        textView.measure(0,0);
+        width = textView.getMeasuredWidth();
+        height = textView.getMeasuredHeight();
+        updateConnections();
     }
 
     private void writeObject(ObjectOutputStream outputStream) throws IOException{
@@ -206,17 +236,11 @@ public class Bubble implements Serializable, View.OnTouchListener {
     }
 
     public float getWidth(){
-        if(textView == null) {
-            setTextView();
-        }
-        return textView.getWidth();
+        return width;
     }
 
     public float getHeight() {
-        if(textView == null) {
-            setTextView();
-        }
-        return textView.getHeight();
+        return height;
     }
 
 }

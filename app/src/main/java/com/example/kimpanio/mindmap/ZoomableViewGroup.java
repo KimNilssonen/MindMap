@@ -1,15 +1,15 @@
 package com.example.kimpanio.mindmap;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.util.DisplayMetrics;
+import android.hardware.input.InputManager;
+import android.renderscript.ScriptGroup;
 import android.util.Log;
 import android.view.*;
-import android.widget.RelativeLayout;
+import android.view.inputmethod.InputMethodManager;
 
 
 public class ZoomableViewGroup extends ViewGroup{
@@ -201,7 +201,7 @@ public class ZoomableViewGroup extends ViewGroup{
                 final int pointerId = motionEvent.getPointerId(pointerIndex);
                 if (pointerId == mActivePointerId) {
                     // This was our active pointer going up. Choose a new
-                    // active pointer and adjust accordingly.
+                    //  active pointer and adjust accordingly.
                     final int newPointerIndex = pointerIndex == 0 ? 1 : 0;
                     mLastTouchX = motionEvent.getX(newPointerIndex);
                     mLastTouchY = motionEvent.getY(newPointerIndex);
@@ -213,15 +213,10 @@ public class ZoomableViewGroup extends ViewGroup{
         return true;
     }
 
-
-    // TODO: Fix better spawnposition for textviews. Even when you have panned the screen, it should work but now it doesnt.
     public Point getScreenMidPoint() {
         Rect rectf = new Rect();
         getLocalVisibleRect(rectf);
 
-
-        Log.d("clipBounds   :", String.valueOf(this.getClipBounds()));
-        Log.d("Rectf        :", String.valueOf(rectf));
         int centerX = rectf.centerX();
         int centerY = rectf.centerY();
 

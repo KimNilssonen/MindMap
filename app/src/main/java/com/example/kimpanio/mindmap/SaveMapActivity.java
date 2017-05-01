@@ -36,7 +36,7 @@ public class SaveMapActivity extends AppCompatActivity {
         setContentView(R.layout.activity_save_map);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         saveButton = (Button) findViewById(R.id.saveFileButton);
         editText = (EditText) findViewById(R.id.saveEditText);
@@ -63,6 +63,8 @@ public class SaveMapActivity extends AppCompatActivity {
 
                         Toast.makeText(getApplicationContext(), "File saved!", Toast.LENGTH_LONG).show();
 
+                        finish();
+
                     }catch(FileNotFoundException e){
                         e.printStackTrace();
                     }catch(IOException e){
@@ -77,8 +79,6 @@ public class SaveMapActivity extends AppCompatActivity {
                 }
             }
         });
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public boolean isExternalStorageWritable() {

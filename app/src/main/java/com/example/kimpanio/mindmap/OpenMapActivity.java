@@ -3,6 +3,7 @@ package com.example.kimpanio.mindmap;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -40,6 +41,7 @@ public class OpenMapActivity extends AppCompatActivity {
         setContentView(R.layout.activity_open_map);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         listView = (ListView) findViewById(R.id.openMapListView);
 
@@ -57,19 +59,16 @@ public class OpenMapActivity extends AppCompatActivity {
             }
         });
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
 
     public void deleteFile(File file){
         file.delete();
         Toast.makeText(getApplicationContext(), "File deleted!", Toast.LENGTH_LONG).show();
-        finish();
         startActivity(getIntent());
     }
 
     public void openFile(File file) {
         try {
-            //TODO: FIX the lines when opening a file!
             Intent intent = new Intent(this, MainActivity.class);
             ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file));
 
@@ -78,6 +77,7 @@ public class OpenMapActivity extends AppCompatActivity {
 
             Toast.makeText(getApplicationContext(), "File opened!", Toast.LENGTH_LONG).show();
             startActivity(intent);
+            finish();
 
         }catch(FileNotFoundException e){
             e.printStackTrace();

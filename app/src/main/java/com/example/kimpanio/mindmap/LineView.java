@@ -30,13 +30,13 @@ public class LineView extends View {
         super.dispatchDraw(canvas);
     }
 
-    public void setStartCoords(float x, float y) {
-        startX = x;
-        startY = y;
+    public void setStart(Bubble bubble) {
+        startX = bubble.getPositionX() + bubble.getWidth()/2;
+        startY = bubble.getPositionY() + bubble.getHeight()/2;
     }
 
-    public void setStopCoords(float x, float y) {
-        stopX = x;
-        stopY = y;
+    public void setStop(Bubble bubble) {
+        stopX = bubble.getPositionX() + bubble.getWidth()/2;
+        stopY = bubble.getPositionY() + bubble.getHeight()/2;
     }
 }

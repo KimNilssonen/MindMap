@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">MindMap</string>
     <string name="action_settings">Settings</string>
-    <string name="clear_board">Clear</string>
+    <string name="new_board">New</string>
     <string name="draw_line">Line</string>
     <string name="save_map">Save</string>
     <string name="open_map">Open</string>
@@ -13,4 +13,5 @@
     <string name="addTextButton">Add</string>
     <string name="title_activity_save_map">SaveMapActivity</string>
     <string name="title_activity_open_map">OpenMapActivity</string>
+    <string name="title_activity_settings">Settings</string>
 </resources>
